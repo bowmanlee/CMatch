@@ -1,0 +1,2480 @@
+[
+  {
+    "id": "cmp-001",
+    "displayName": "Dr. Man Yiu Cheong",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Heritage Holistic Clinic",
+    "districts": [
+      "tsuen_wan"
+    ],
+    "areas": [
+      "Tsuen Wan"
+    ],
+    "mtrNearby": [
+      "Tai Wo Hau"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "moxibustion",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Focused on calm, evidence-aware consultations for digestive, menstrual and fertility-related concerns.",
+    "profileQuality": 0.79
+  },
+  {
+    "id": "cmp-002",
+    "displayName": "Lee Man Fai",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Tranquil Therapy Centre",
+    "districts": [
+      "yau_tsim_mong"
+    ],
+    "areas": [
+      "Jordan"
+    ],
+    "mtrNearby": [
+      "Tsim Sha Tsui"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "pediatrics"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "diet_lifestyle_guidance",
+      "moxibustion",
+      "cupping",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "Specialises in sports injuries, chronic pain management and post-operative rehabilitation using integrated TCM approaches.",
+    "profileQuality": 0.78
+  },
+  {
+    "id": "cmp-003",
+    "displayName": "Tam Hon Ho",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Willow TCM Clinic",
+    "districts": [
+      "sha_tin"
+    ],
+    "areas": [
+      "Sha Tin"
+    ],
+    "mtrNearby": [
+      "Ma On Shan"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "obstetrics_gynecology"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "integrative_referral",
+      "acupuncture"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 22,
+    "priceRange": "$$$$",
+    "bio": "Over 20 years of clinical experience in internal medicine, with particular expertise in respiratory and immune conditions.",
+    "profileQuality": 0.95
+  },
+  {
+    "id": "cmp-004",
+    "displayName": "Dr. Choi Kai Wang",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Harmony Restorative Clinic",
+    "districts": [
+      "eastern"
+    ],
+    "areas": [
+      "Quarry Bay"
+    ],
+    "mtrNearby": [
+      "Quarry Bay"
+    ],
+    "languages": [
+      "english",
+      "mandarin",
+      "cantonese"
+    ],
+    "specialties": [
+      "tuina",
+      "internal_medicine",
+      "ophthalmology"
+    ],
+    "modalities": [
+      "cupping",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 7,
+    "priceRange": "$$",
+    "bio": "Passionate about paediatric TCM, helping children with eczema, allergies and recurrent colds through gentle herbal and acupuncture protocols.",
+    "profileQuality": 0.8
+  },
+  {
+    "id": "cmp-005",
+    "displayName": "Yau Ka Ho",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Dragon TCM Clinic",
+    "districts": [
+      "yuen_long"
+    ],
+    "areas": [
+      "Yuen Long"
+    ],
+    "mtrNearby": [
+      "Long Ping"
+    ],
+    "languages": [
+      "mandarin"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "dermatology"
+    ],
+    "modalities": [
+      "tuina",
+      "acupuncture",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 17,
+    "priceRange": "$$$",
+    "bio": "Expert in dermatological conditions, treating eczema, acne and psoriasis with herbal medicine and dietary guidance.",
+    "profileQuality": 0.95
+  },
+  {
+    "id": "cmp-006",
+    "displayName": "Yau Mei Ling",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Spring Care Centre",
+    "districts": [
+      "wong_tai_sin"
+    ],
+    "areas": [
+      "Lok Fu"
+    ],
+    "mtrNearby": [
+      "Wong Tai Sin"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "surgery"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "bonesetting",
+      "tuina",
+      "cupping",
+      "acupuncture"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 25,
+    "priceRange": "$$$",
+    "bio": "Dedicated to women's health across all life stages, from adolescent menstrual issues to menopausal support.",
+    "profileQuality": 0.91
+  },
+  {
+    "id": "cmp-007",
+    "displayName": "Dr. Lee Shuk Han",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Maple Healing Centre",
+    "districts": [
+      "sai_kung"
+    ],
+    "areas": [
+      "Sai Kung"
+    ],
+    "mtrNearby": [
+      "Tseung Kwan O"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "acupuncture",
+      "otorhinolaryngology",
+      "internal_medicine",
+      "surgery"
+    ],
+    "modalities": [
+      "moxibustion",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 32,
+    "priceRange": "$$$$",
+    "bio": "Skilled in tuina massage and bonesetting for musculoskeletal injuries, back pain and joint conditions.",
+    "profileQuality": 0.94
+  },
+  {
+    "id": "cmp-008",
+    "displayName": "Fung Ho Yin",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Dragon Chinese Medicine",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Central"
+    ],
+    "mtrNearby": [
+      "Central"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "surgery",
+      "internal_medicine"
+    ],
+    "modalities": [
+      "cupping",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Integrative practitioner combining traditional herbal medicine with modern diagnostic understanding for optimal patient outcomes.",
+    "profileQuality": 0.76
+  },
+  {
+    "id": "cmp-009",
+    "displayName": "Shek Wing Sze",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Evergreen Health Centre",
+    "districts": [
+      "sha_tin"
+    ],
+    "areas": [
+      "Fo Tan"
+    ],
+    "mtrNearby": [
+      "Ma On Shan"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "acupuncture",
+      "stomatology"
+    ],
+    "modalities": [
+      "tuina",
+      "bonesetting",
+      "cupping",
+      "acupuncture",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 21,
+    "priceRange": "$$$$",
+    "bio": "Special interest in stress-related disorders, sleep disturbance and anxiety management through acupuncture and herbal formulae.",
+    "profileQuality": 0.79
+  },
+  {
+    "id": "cmp-010",
+    "displayName": "Dr. Chow Siu Ying",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Zen Healing Centre",
+    "districts": [
+      "tuen_mun"
+    ],
+    "areas": [
+      "Siu Hong"
+    ],
+    "mtrNearby": [
+      "Siu Hong"
+    ],
+    "languages": [
+      "cantonese",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "ophthalmology",
+      "proctology"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "diet_lifestyle_guidance",
+      "tuina",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 16,
+    "priceRange": "$$$",
+    "bio": "Geriatric care specialist supporting older adults with mobility issues, chronic pain and general vitality.",
+    "profileQuality": 0.8
+  },
+  {
+    "id": "cmp-011",
+    "displayName": "Ho Shuk Han",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Pine Therapy Centre",
+    "districts": [
+      "sham_shui_po"
+    ],
+    "areas": [
+      "Sham Shui Po"
+    ],
+    "mtrNearby": [
+      "Sham Shui Po"
+    ],
+    "languages": [
+      "cantonese",
+      "english"
+    ],
+    "specialties": [
+      "pediatrics"
+    ],
+    "modalities": [
+      "bonesetting",
+      "integrative_referral",
+      "tuina",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 30,
+    "priceRange": "$$$$",
+    "bio": "Renowned for precise acupuncture techniques in treating neurological conditions, headaches and vertigo.",
+    "profileQuality": 0.9
+  },
+  {
+    "id": "cmp-012",
+    "displayName": "Shum Shun Hei",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Gentle Chinese Medicine",
+    "districts": [
+      "kowloon_city"
+    ],
+    "areas": [
+      "Ho Man Tin"
+    ],
+    "mtrNearby": [
+      "To Kwa Wan"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "orthopedics_traumatology",
+      "pediatrics"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Holistic approach to weight management, metabolic disorders and digestive health through customised herbal protocols.",
+    "profileQuality": 0.87
+  },
+  {
+    "id": "cmp-013",
+    "displayName": "Dr. Ma Mei Ling",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Zen Medicine Centre",
+    "districts": [
+      "islands"
+    ],
+    "areas": [
+      "Discovery Bay"
+    ],
+    "mtrNearby": [
+      "Sunny Bay"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "proctology",
+      "tuina",
+      "dermatology"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "acupuncture",
+      "herbal_medicine",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Expertise in eye health, treating dry eyes, blurred vision and eye strain with traditional TCM ophthalmology methods.",
+    "profileQuality": 0.89
+  },
+  {
+    "id": "cmp-014",
+    "displayName": "Ma Hoi Yee",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Natural Health Centre",
+    "districts": [
+      "southern"
+    ],
+    "areas": [
+      "Wong Chuk Hang"
+    ],
+    "mtrNearby": [
+      "Ocean Park"
+    ],
+    "languages": [
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "stomatology"
+    ],
+    "modalities": [
+      "bonesetting",
+      "moxibustion"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "ENT specialist treating sinusitis, allergic rhinitis and tinnitus with acupuncture and herbal steam therapy.",
+    "profileQuality": 0.79
+  },
+  {
+    "id": "cmp-015",
+    "displayName": "Tang Ching Yee",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Orchid Chinese Medicine",
+    "districts": [
+      "southern"
+    ],
+    "areas": [
+      "Aberdeen"
+    ],
+    "mtrNearby": [
+      "Ocean Park"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "ophthalmology",
+      "dermatology"
+    ],
+    "modalities": [
+      "moxibustion",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 26,
+    "priceRange": "$$$$",
+    "bio": "Preventive healthcare advocate helping patients maintain wellness through seasonal adjustments and lifestyle counselling.",
+    "profileQuality": 0.85
+  },
+  {
+    "id": "cmp-016",
+    "displayName": "Dr. Chung Hon Ho",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Lotus Care Centre",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Sai Ying Pun"
+    ],
+    "mtrNearby": [
+      "Central"
+    ],
+    "languages": [
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "orthopedics_traumatology",
+      "acupuncture"
+    ],
+    "modalities": [
+      "moxibustion",
+      "bonesetting",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 22,
+    "priceRange": "$$$$",
+    "bio": "Focused on cancer support care, managing chemotherapy side effects and improving quality of life.",
+    "profileQuality": 0.86
+  },
+  {
+    "id": "cmp-017",
+    "displayName": "Chung Nga Yee",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Vitality Restorative Clinic",
+    "districts": [
+      "kwun_tong"
+    ],
+    "areas": [
+      "Kwun Tong"
+    ],
+    "mtrNearby": [
+      "Kwun Tong"
+    ],
+    "languages": [
+      "mandarin"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "stomatology",
+      "rehabilitation_medicine",
+      "preventive_healthcare"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "acupuncture",
+      "moxibustion"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 21,
+    "priceRange": "$$$$",
+    "bio": "Rehabilitation specialist using acupuncture, tuina and therapeutic exercise for stroke recovery and neurological rehabilitation.",
+    "profileQuality": 0.77
+  },
+  {
+    "id": "cmp-018",
+    "displayName": "Lin Ka Man",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Maple TCM Clinic",
+    "districts": [
+      "tai_po"
+    ],
+    "areas": [
+      "Tai Po"
+    ],
+    "mtrNearby": [
+      "Tai Po Market"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "ophthalmology",
+      "acupuncture",
+      "dermatology",
+      "proctology"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "Expert in male health concerns including fertility support, prostate health and sexual wellness.",
+    "profileQuality": 0.9
+  },
+  {
+    "id": "cmp-019",
+    "displayName": "Dr. Chow Tsz Kwan",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Pine Acupuncture Centre",
+    "districts": [
+      "tsuen_wan"
+    ],
+    "areas": [
+      "Tsuen Wan"
+    ],
+    "mtrNearby": [
+      "Tai Wo Hau"
+    ],
+    "languages": [
+      "cantonese",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "moxibustion",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 30,
+    "priceRange": "$$$",
+    "bio": "Passionate about mental-emotional wellbeing, using Five Element acupuncture for depression, anxiety and emotional balance.",
+    "profileQuality": 0.86
+  },
+  {
+    "id": "cmp-020",
+    "displayName": "Lam Hin Ying",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "True Medicine Hall",
+    "districts": [
+      "tsuen_wan"
+    ],
+    "areas": [
+      "Sham Tseng"
+    ],
+    "mtrNearby": [
+      "Tsuen Wan"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "ophthalmology"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "diet_lifestyle_guidance"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 17,
+    "priceRange": "$$$",
+    "bio": "Skilled in facial rejuvenation acupuncture and cosmetic TCM for natural anti-ageing treatments.",
+    "profileQuality": 0.92
+  },
+  {
+    "id": "cmp-021",
+    "displayName": "Fan Shun Hei",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Vitality Chinese Medicine",
+    "districts": [
+      "tuen_mun"
+    ],
+    "areas": [
+      "Tuen Mun"
+    ],
+    "mtrNearby": [
+      "Tuen Mun"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "ophthalmology"
+    ],
+    "modalities": [
+      "bonesetting",
+      "diet_lifestyle_guidance"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 14,
+    "priceRange": "$$$",
+    "bio": "General practitioner with broad expertise across all TCM disciplines, welcoming patients of all ages.",
+    "profileQuality": 0.88
+  },
+  {
+    "id": "cmp-022",
+    "displayName": "Dr. Shum Ying Tung",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Bamboo Medicine Centre",
+    "districts": [
+      "north"
+    ],
+    "areas": [
+      "Fanling"
+    ],
+    "mtrNearby": [
+      "Sheung Shui"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "oncology"
+    ],
+    "modalities": [
+      "acupuncture",
+      "tuina",
+      "herbal_medicine",
+      "integrative_referral",
+      "moxibustion"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 19,
+    "priceRange": "$$$",
+    "bio": "Specialises in cardiovascular health, supporting patients with hypertension, palpitations and circulation issues.",
+    "profileQuality": 0.94
+  },
+  {
+    "id": "cmp-023",
+    "displayName": "Tang Tak Wah",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Maple Care & Wellness",
+    "districts": [
+      "wan_chai"
+    ],
+    "areas": [
+      "Causeway Bay"
+    ],
+    "mtrNearby": [
+      "Wan Chai"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "obstetrics_gynecology",
+      "geriatrics",
+      "pediatrics",
+      "proctology"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "bonesetting",
+      "acupuncture",
+      "diet_lifestyle_guidance",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Expert in urinary and kidney health, treating recurrent UTIs, kidney stones and prostate conditions.",
+    "profileQuality": 0.9
+  },
+  {
+    "id": "cmp-024",
+    "displayName": "Tang Hoi Lam",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Golden Herbal Centre",
+    "districts": [
+      "islands"
+    ],
+    "areas": [
+      "Discovery Bay"
+    ],
+    "mtrNearby": [
+      "Sunny Bay"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "tuina",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 12,
+    "priceRange": "$$$",
+    "bio": "Dental-oral specialist treating gum disease, oral ulcers and TMJ disorders with TCM herbal protocols.",
+    "profileQuality": 0.93
+  },
+  {
+    "id": "cmp-025",
+    "displayName": "Dr. Mak Ho Yin",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Bamboo Therapy Centre",
+    "districts": [
+      "eastern"
+    ],
+    "areas": [
+      "Quarry Bay"
+    ],
+    "mtrNearby": [
+      "Tai Koo"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "pediatrics"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "herbal_medicine",
+      "acupuncture",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 14,
+    "priceRange": "$$$",
+    "bio": "Proctology specialist treating haemorrhoids, anal fissures and rectal conditions with minimally invasive TCM methods.",
+    "profileQuality": 0.84
+  },
+  {
+    "id": "cmp-026",
+    "displayName": "Lai Sin Yi",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Tranquil Health Centre",
+    "districts": [
+      "wong_tai_sin"
+    ],
+    "areas": [
+      "Lok Fu"
+    ],
+    "mtrNearby": [
+      "Diamond Hill"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "rehabilitation_medicine",
+      "emergency_medicine",
+      "proctology"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "herbal_medicine",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 28,
+    "priceRange": "$$$",
+    "bio": "Focused on calm, evidence-aware consultations for digestive, menstrual and fertility-related concerns.",
+    "profileQuality": 0.92
+  },
+  {
+    "id": "cmp-027",
+    "displayName": "Kwok Hin Ying",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Golden Therapy Centre",
+    "districts": [
+      "kwai_tsing"
+    ],
+    "areas": [
+      "Kwai Chung"
+    ],
+    "mtrNearby": [
+      "Tsing Yi"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "moxibustion",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 5,
+    "priceRange": "$",
+    "bio": "Specialises in sports injuries, chronic pain management and post-operative rehabilitation using integrated TCM approaches.",
+    "profileQuality": 0.91
+  },
+  {
+    "id": "cmp-028",
+    "displayName": "Dr. So Lok Yi",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Tranquil Wellness Clinic",
+    "districts": [
+      "eastern"
+    ],
+    "areas": [
+      "Sai Wan Ho"
+    ],
+    "mtrNearby": [
+      "Tai Koo"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "tuina",
+      "diet_lifestyle_guidance",
+      "bonesetting",
+      "acupuncture",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 17,
+    "priceRange": "$$$",
+    "bio": "Over 20 years of clinical experience in internal medicine, with particular expertise in respiratory and immune conditions.",
+    "profileQuality": 0.84
+  },
+  {
+    "id": "cmp-029",
+    "displayName": "Man Hin Ying",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Sacred Restorative Clinic",
+    "districts": [
+      "kowloon_city"
+    ],
+    "areas": [
+      "To Kwa Wan"
+    ],
+    "mtrNearby": [
+      "Sung Wong Toi"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "acupuncture"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "tuina",
+      "bonesetting",
+      "diet_lifestyle_guidance"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 26,
+    "priceRange": "$$$$",
+    "bio": "Passionate about paediatric TCM, helping children with eczema, allergies and recurrent colds through gentle herbal and acupuncture protocols.",
+    "profileQuality": 0.8
+  },
+  {
+    "id": "cmp-030",
+    "displayName": "Siu Ching Nam",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "True Care Centre",
+    "districts": [
+      "kowloon_city"
+    ],
+    "areas": [
+      "To Kwa Wan"
+    ],
+    "mtrNearby": [
+      "Kowloon City"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "obstetrics_gynecology",
+      "geriatrics",
+      "dermatology"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "cupping",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 30,
+    "priceRange": "$$$",
+    "bio": "Expert in dermatological conditions, treating eczema, acne and psoriasis with herbal medicine and dietary guidance.",
+    "profileQuality": 0.89
+  },
+  {
+    "id": "cmp-031",
+    "displayName": "Dr. Lo Hoi Ching",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Sacred Chinese Medicine",
+    "districts": [
+      "tsuen_wan"
+    ],
+    "areas": [
+      "Sham Tseng"
+    ],
+    "mtrNearby": [
+      "Tsuen Wan"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "preventive_healthcare",
+      "orthopedics_traumatology"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 12,
+    "priceRange": "$$$",
+    "bio": "Dedicated to women's health across all life stages, from adolescent menstrual issues to menopausal support.",
+    "profileQuality": 0.89
+  },
+  {
+    "id": "cmp-032",
+    "displayName": "Chan Siu Ming",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Orchid TCM Clinic",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Sai Ying Pun"
+    ],
+    "mtrNearby": [
+      "HKU"
+    ],
+    "languages": [
+      "cantonese",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "integrative_referral",
+      "tuina",
+      "bonesetting",
+      "cupping",
+      "moxibustion"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 5,
+    "priceRange": "$",
+    "bio": "Skilled in tuina massage and bonesetting for musculoskeletal injuries, back pain and joint conditions.",
+    "profileQuality": 0.91
+  },
+  {
+    "id": "cmp-033",
+    "displayName": "Lai Tsz Kwan",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Summit Clinic & Wellness",
+    "districts": [
+      "kwai_tsing"
+    ],
+    "areas": [
+      "Tsing Yi"
+    ],
+    "mtrNearby": [
+      "Tsing Yi"
+    ],
+    "languages": [
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "obstetrics_gynecology",
+      "preventive_healthcare",
+      "geriatrics"
+    ],
+    "modalities": [
+      "tuina",
+      "cupping",
+      "acupuncture",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 22,
+    "priceRange": "$$$",
+    "bio": "Integrative practitioner combining traditional herbal medicine with modern diagnostic understanding for optimal patient outcomes.",
+    "profileQuality": 0.85
+  },
+  {
+    "id": "cmp-034",
+    "displayName": "Dr. Choi Nga Yee",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Harmony Restorative Clinic",
+    "districts": [
+      "wong_tai_sin"
+    ],
+    "areas": [
+      "Diamond Hill"
+    ],
+    "mtrNearby": [
+      "Wong Tai Sin"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "acupuncture",
+      "internal_medicine"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "tuina",
+      "diet_lifestyle_guidance",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 11,
+    "priceRange": "$$$",
+    "bio": "Special interest in stress-related disorders, sleep disturbance and anxiety management through acupuncture and herbal formulae.",
+    "profileQuality": 0.92
+  },
+  {
+    "id": "cmp-035",
+    "displayName": "Ma Hin Wa",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Orchid TCM Clinic",
+    "districts": [
+      "sham_shui_po"
+    ],
+    "areas": [
+      "Cheung Sha Wan"
+    ],
+    "mtrNearby": [
+      "Cheung Sha Wan"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine"
+    ],
+    "modalities": [
+      "cupping",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 6,
+    "priceRange": "$$",
+    "bio": "Geriatric care specialist supporting older adults with mobility issues, chronic pain and general vitality.",
+    "profileQuality": 0.93
+  },
+  {
+    "id": "cmp-036",
+    "displayName": "Cheung Siu Ming",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Summit Acupuncture Centre",
+    "districts": [
+      "southern"
+    ],
+    "areas": [
+      "Repulse Bay"
+    ],
+    "mtrNearby": [
+      "Wong Chuk Hang"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "proctology",
+      "internal_medicine",
+      "dermatology"
+    ],
+    "modalities": [
+      "tuina",
+      "herbal_medicine",
+      "diet_lifestyle_guidance"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 8,
+    "priceRange": "$$",
+    "bio": "Renowned for precise acupuncture techniques in treating neurological conditions, headaches and vertigo.",
+    "profileQuality": 0.9
+  },
+  {
+    "id": "cmp-037",
+    "displayName": "Dr. Ma Siu Han",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Renewal Therapy Centre",
+    "districts": [
+      "sai_kung"
+    ],
+    "areas": [
+      "Tseung Kwan O"
+    ],
+    "mtrNearby": [
+      "Hang Hau"
+    ],
+    "languages": [
+      "english",
+      "cantonese",
+      "mandarin"
+    ],
+    "specialties": [
+      "stomatology",
+      "oncology",
+      "otorhinolaryngology",
+      "internal_medicine"
+    ],
+    "modalities": [
+      "cupping",
+      "bonesetting",
+      "moxibustion",
+      "tuina",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 9,
+    "priceRange": "$$",
+    "bio": "Holistic approach to weight management, metabolic disorders and digestive health through customised herbal protocols.",
+    "profileQuality": 0.88
+  },
+  {
+    "id": "cmp-038",
+    "displayName": "Tsang Hin Wa",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Pine Holistic Clinic",
+    "districts": [
+      "kwun_tong"
+    ],
+    "areas": [
+      "Kwun Tong"
+    ],
+    "mtrNearby": [
+      "Kwun Tong"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "stomatology",
+      "oncology"
+    ],
+    "modalities": [
+      "cupping",
+      "tuina",
+      "bonesetting",
+      "diet_lifestyle_guidance",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 9,
+    "priceRange": "$$",
+    "bio": "Expertise in eye health, treating dry eyes, blurred vision and eye strain with traditional TCM ophthalmology methods.",
+    "profileQuality": 0.82
+  },
+  {
+    "id": "cmp-039",
+    "displayName": "Yip Siu Ming",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Heritage Restorative Clinic",
+    "districts": [
+      "sai_kung"
+    ],
+    "areas": [
+      "Sai Kung"
+    ],
+    "mtrNearby": [
+      "Tseung Kwan O"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "pediatrics"
+    ],
+    "modalities": [
+      "cupping",
+      "acupuncture",
+      "moxibustion",
+      "integrative_referral",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 4,
+    "priceRange": "$",
+    "bio": "ENT specialist treating sinusitis, allergic rhinitis and tinnitus with acupuncture and herbal steam therapy.",
+    "profileQuality": 0.92
+  },
+  {
+    "id": "cmp-040",
+    "displayName": "Dr. Tse Tsz Kwan",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Jade Care & Wellness",
+    "districts": [
+      "tuen_mun"
+    ],
+    "areas": [
+      "Siu Hong"
+    ],
+    "mtrNearby": [
+      "Siu Hong"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "orthopedics_traumatology",
+      "stomatology"
+    ],
+    "modalities": [
+      "acupuncture",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 21,
+    "priceRange": "$$$",
+    "bio": "Preventive healthcare advocate helping patients maintain wellness through seasonal adjustments and lifestyle counselling.",
+    "profileQuality": 0.76
+  },
+  {
+    "id": "cmp-041",
+    "displayName": "Man Sze Man",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Willow Holistic Clinic",
+    "districts": [
+      "eastern"
+    ],
+    "areas": [
+      "North Point"
+    ],
+    "mtrNearby": [
+      "Quarry Bay"
+    ],
+    "languages": [
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "ophthalmology"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "acupuncture",
+      "integrative_referral",
+      "herbal_medicine",
+      "bonesetting"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "Same day",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 12,
+    "priceRange": "$$$",
+    "bio": "Focused on cancer support care, managing chemotherapy side effects and improving quality of life.",
+    "profileQuality": 0.81
+  },
+  {
+    "id": "cmp-042",
+    "displayName": "Shum Shuk Han",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Zen Therapy Centre",
+    "districts": [
+      "wong_tai_sin"
+    ],
+    "areas": [
+      "Wong Tai Sin"
+    ],
+    "mtrNearby": [
+      "Diamond Hill"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "acupuncture",
+      "rehabilitation_medicine"
+    ],
+    "modalities": [
+      "acupuncture",
+      "bonesetting",
+      "moxibustion",
+      "diet_lifestyle_guidance",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 24,
+    "priceRange": "$$$",
+    "bio": "Rehabilitation specialist using acupuncture, tuina and therapeutic exercise for stroke recovery and neurological rehabilitation.",
+    "profileQuality": 0.82
+  },
+  {
+    "id": "cmp-043",
+    "displayName": "Dr. Man Kai Wang",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Celestial Holistic Clinic",
+    "districts": [
+      "eastern"
+    ],
+    "areas": [
+      "Taikoo Shing"
+    ],
+    "mtrNearby": [
+      "Tai Koo"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "stomatology",
+      "preventive_healthcare",
+      "emergency_medicine"
+    ],
+    "modalities": [
+      "bonesetting",
+      "herbal_medicine",
+      "acupuncture",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 5,
+    "priceRange": "$",
+    "bio": "Expert in male health concerns including fertility support, prostate health and sexual wellness.",
+    "profileQuality": 0.83
+  },
+  {
+    "id": "cmp-044",
+    "displayName": "Choi Man Fai",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Phoenix Care & Wellness",
+    "districts": [
+      "wan_chai"
+    ],
+    "areas": [
+      "Happy Valley"
+    ],
+    "mtrNearby": [
+      "Wan Chai"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "oncology"
+    ],
+    "modalities": [
+      "moxibustion",
+      "bonesetting",
+      "cupping",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": false
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "Passionate about mental-emotional wellbeing, using Five Element acupuncture for depression, anxiety and emotional balance.",
+    "profileQuality": 0.9
+  },
+  {
+    "id": "cmp-045",
+    "displayName": "Lam Tak Wah",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Autumn Medicine Hall",
+    "districts": [
+      "wong_tai_sin"
+    ],
+    "areas": [
+      "Diamond Hill"
+    ],
+    "mtrNearby": [
+      "Diamond Hill"
+    ],
+    "languages": [
+      "mandarin",
+      "english"
+    ],
+    "specialties": [
+      "dermatology",
+      "surgery",
+      "tuina"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "moxibustion",
+      "integrative_referral",
+      "tuina"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "Skilled in facial rejuvenation acupuncture and cosmetic TCM for natural anti-ageing treatments.",
+    "profileQuality": 0.88
+  },
+  {
+    "id": "cmp-046",
+    "displayName": "Dr. Kwan Chiu Ming",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Summit TCM Clinic",
+    "districts": [
+      "yau_tsim_mong"
+    ],
+    "areas": [
+      "Yau Ma Tei"
+    ],
+    "mtrNearby": [
+      "Tsim Sha Tsui"
+    ],
+    "languages": [
+      "mandarin",
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "pediatrics",
+      "tuina"
+    ],
+    "modalities": [
+      "cupping",
+      "moxibustion",
+      "bonesetting",
+      "herbal_medicine"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": false,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "3-7 days",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 17,
+    "priceRange": "$$$",
+    "bio": "General practitioner with broad expertise across all TCM disciplines, welcoming patients of all ages.",
+    "profileQuality": 0.76
+  },
+  {
+    "id": "cmp-047",
+    "displayName": "Tang Chun Hin",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Gentle Care Centre",
+    "districts": [
+      "kwai_tsing"
+    ],
+    "areas": [
+      "Kwai Chung"
+    ],
+    "mtrNearby": [
+      "Lai King"
+    ],
+    "languages": [
+      "english",
+      "mandarin",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "obstetrics_gynecology",
+      "preventive_healthcare"
+    ],
+    "modalities": [
+      "herbal_medicine",
+      "acupuncture",
+      "diet_lifestyle_guidance",
+      "moxibustion",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": true,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-2 weeks",
+      "evenings": false,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 9,
+    "priceRange": "$$",
+    "bio": "Specialises in cardiovascular health, supporting patients with hypertension, palpitations and circulation issues.",
+    "profileQuality": 0.91
+  },
+  {
+    "id": "cmp-048",
+    "displayName": "Fung Wing Yan",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "male",
+    "clinicName": "Orchid Therapy Centre",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Central"
+    ],
+    "mtrNearby": [
+      "Sai Ying Pun"
+    ],
+    "languages": [
+      "english"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "obstetrics_gynecology"
+    ],
+    "modalities": [
+      "tuina",
+      "bonesetting",
+      "moxibustion",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 29,
+    "priceRange": "$$$",
+    "bio": "Expert in urinary and kidney health, treating recurrent UTIs, kidney stones and prostate conditions.",
+    "profileQuality": 0.82
+  },
+  {
+    "id": "cmp-049",
+    "displayName": "Dr. Yiu Shuk Han",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Zen TCM Clinic",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Central"
+    ],
+    "mtrNearby": [
+      "Sheung Wan"
+    ],
+    "languages": [
+      "cantonese",
+      "english",
+      "mandarin"
+    ],
+    "specialties": [
+      "otorhinolaryngology",
+      "obstetrics_gynecology",
+      "proctology",
+      "preventive_healthcare"
+    ],
+    "modalities": [
+      "moxibustion",
+      "herbal_medicine",
+      "bonesetting",
+      "cupping"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus",
+        "child_2_12",
+        "teen_13_17"
+      ],
+      "pregnancyRelated": false,
+      "children": true
+    },
+    "availability": {
+      "nextAvailable": "1-3 days",
+      "evenings": true,
+      "weekends": false,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 18,
+    "priceRange": "$$$",
+    "bio": "Dental-oral specialist treating gum disease, oral ulcers and TMJ disorders with TCM herbal protocols.",
+    "profileQuality": 0.95
+  },
+  {
+    "id": "cmp-050",
+    "displayName": "Lo Ka Man",
+    "title": "Registered Chinese Medicine Practitioner",
+    "gender": "female",
+    "clinicName": "Cedar Care Centre",
+    "districts": [
+      "central_and_western"
+    ],
+    "areas": [
+      "Central"
+    ],
+    "mtrNearby": [
+      "HKU"
+    ],
+    "languages": [
+      "english",
+      "cantonese"
+    ],
+    "specialties": [
+      "internal_medicine",
+      "surgery",
+      "ophthalmology",
+      "rehabilitation_medicine"
+    ],
+    "modalities": [
+      "diet_lifestyle_guidance",
+      "bonesetting",
+      "moxibustion",
+      "integrative_referral"
+    ],
+    "accepts": {
+      "ageBands": [
+        "adult_18_64",
+        "older_adult_65_plus"
+      ],
+      "pregnancyRelated": true,
+      "children": false
+    },
+    "availability": {
+      "nextAvailable": "2-3 weeks",
+      "evenings": true,
+      "weekends": true,
+      "acceptingNewPatients": true
+    },
+    "experienceYears": 21,
+    "priceRange": "$$$",
+    "bio": "Proctology specialist treating haemorrhoids, anal fissures and rectal conditions with minimally invasive TCM methods.",
+    "profileQuality": 0.93
+  }
+]

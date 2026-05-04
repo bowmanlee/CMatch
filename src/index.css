@@ -7,6 +7,8 @@
   --cm-green-800: #18483d;
   --cm-green-700: #235f4f;
   --cm-green-500: #3f806a;
+  --cm-green-200: #c8e1cc;
+  --cm-green-50: #e8f5ea;
   --cm-ink: #1d2621;
   --cm-ink-muted: #66736b;
   --cm-border: #ded5c4;
@@ -55,19 +57,6 @@ body {
   overflow-x: hidden;
   -webkit-tap-highlight-color: rgba(18, 55, 47, 0.08);
   background: var(--cm-bg);
-}
-
-body::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  content: '';
-  opacity: 0.12;
-  background-image:
-    linear-gradient(rgba(18, 55, 47, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(18, 55, 47, 0.04) 1px, transparent 1px);
-  background-size: 42px 42px;
 }
 
 button,

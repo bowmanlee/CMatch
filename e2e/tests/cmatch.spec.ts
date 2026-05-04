@@ -1,217 +1,179 @@
 import { expect, test, type Page } from '@playwright/test'
 
-async function mockDeepSeekStream(page: Page, extraction: Record<string, unknown>) {
-  await page.route('**/api/deepseek/analyze-stream', async (route) => {
+async function mockConversation(page: Page, response: Record<string, unknown>) {
+  await page.route('**/api/conversation', async (route) => {
     await route.fulfill({
       status: 200,
-      headers: {
-        'cache-control': 'no-store',
-        'content-type': 'text/event-stream; charset=utf-8',
-      },
-      body: [
-        'event: meta',
-        'data: {"model":"test-structurer"}',
-        '',
-        'event: delta',
-        `data: ${JSON.stringify({ text: JSON.stringify(extraction) })}`,
-        '',
-        'event: done',
-        'data: {"model":"test-structurer"}',
-        '',
-        '',
-      ].join('\n'),
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(response),
     })
   })
 }
 
-test.describe('CMatch prototype', () => {
-  test('renders the core intake and matching experience', async ({ page }) => {
+const defaultSchema = {
+  schemaVersion: 'cmatch.intake.v1',
+  source: { rawText: 'test', language: 'en' },
+  patientContext: { ageBand: 'adult_18_64', pregnancyStatus: 'not_applicable' },
+  complaint: {
+    domains: ['pain_musculoskeletal'],
+    bodyRegions: ['ankle_foot'],
+    symptomQualities: ['pain', 'swelling'],
+    duration: 'acute',
+    severity: 'moderate',
+    functionalImpact: [],
+  },
+  safety: { route: 'ok_to_match', redFlags: [] },
+  preferences: {
+    districtsPreferred: ['yau_tsim_mong'],
+    languagesPreferred: ['no_preference'],
+    treatmentPreferences: ['tuina', 'bonesetting'],
+    treatmentAvoidances: [],
+  },
+  practitionerPreferences: {
+    gender: 'unknown',
+    availability: { evenings: null, weekends: null },
+  },
+  extractionMeta: {
+    confidence: 'high',
+    missingImportantFields: [],
+    needsHumanReview: false,
+  },
+}
+
+test.describe('CMatch chat experience', () => {
+  test('navigates from home to match and shows the chat interface', async ({ page }) => {
     await page.goto('/')
 
     await expect(page.getByRole('heading', { name: /Find the right Chinese medicine practitioner/i })).toBeVisible()
-    await page.getByRole('button', { name: /Find (a|your) practitioner/ }).first().click()
+    await expect(page.getByRole('button', { name: /Find your practitioner/ })).toBeVisible()
+
+    await page.getByRole('button', { name: /Find your practitioner/ }).click()
     await expect(page).toHaveURL(/\/match$/)
-    await expect(page.getByRole('heading', { name: 'Describe your concern' })).toBeVisible()
-    await expect(page.getByLabel('Describe your concern')).toBeVisible()
-    await expect(page.getByText(/Share symptoms, timing, location/i)).toBeVisible()
-    await expect(page.getByText('Developer diagnostics')).toBeVisible()
-    await expect(page.getByText('System prompt sent by the local proxy')).toBeVisible()
+
+    await expect(page.locator('.chat-empty-lead')).toHaveText('Describe your symptoms, timing, location and care preferences.')
+    await expect(page.getByPlaceholder('Type your concern…')).toBeVisible()
+    await expect(page.locator('.quick-picks button')).toHaveCount(3)
+    await expect(page.locator('.chat-messages')).toBeVisible()
   })
 
-  test('matches an ankle injury to die-da and exposes the debug schema', async ({ page }) => {
-    await mockDeepSeekStream(page, {
-      summary: 'An ankle sprain pattern with pain, swelling, and Mong Kok location preference.',
-      domains: ['injury_sprain_strain', 'musculoskeletal_pain'],
-      bodyRegions: ['ankle_foot'],
-      symptomQualities: ['pain', 'swelling'],
-      safetyRoute: 'ok_to_match',
-      redFlags: ['none detected'],
-      missingImportantFields: [],
-      confidence: 'high',
-      preferences: {
-        districtsPreferred: ['yau_tsim_mong'],
-        languagesPreferred: ['no_preference'],
-        treatmentPreferences: ['tuina', 'bonesetting'],
-        treatmentAvoidances: [],
-      },
+  test('sends a message and shows AI response with schema and matches', async ({ page }) => {
+    await mockConversation(page, {
+      text: 'I understand you have an ankle sprain. Let me find the right practitioner for you.',
+      schema: defaultSchema,
+      status: 'showing_matches',
+      matches: [
+        {
+          practitionerId: 'cmp-004',
+          score: 92,
+          band: 'Strong match',
+          reasons: ['TCM orthopedics / die-da traumatology specialist', 'Located in Mong Kok'],
+          cautions: [],
+        },
+      ],
     })
-    await page.goto('/')
-    await page.getByRole('button', { name: /Find (a|your) practitioner/ }).first().click()
 
-    await page.getByLabel('Describe your concern').fill(
+    await page.goto('/match')
+
+    await page.getByPlaceholder('Type your concern…').fill(
       'I twisted my ankle two days ago. Walking hurts and I prefer a clinic near Mong Kok. I am open to tui na or die-da.',
     )
-    await expect(page.getByText('Here is how CMatch understood your concern')).not.toBeVisible()
-    await page.getByRole('button', { name: 'Find matches' }).click()
+    await page.locator('.chat-send').click()
 
-    await expect(page.getByText('Here is how CMatch understood your concern')).toBeVisible()
-    await expect(page.getByText('Structured concern')).toBeVisible()
-    await expect(page.getByText('Suggested specialists', { exact: true })).toBeVisible()
-    await expect(page.getByText('Practitioner database check')).toBeVisible()
-    await expect(page.getByText('System prompt sent by the local proxy')).toBeVisible()
-    await expect(page.locator('.developer-section')).toContainText(/Latest agent\/local output|Streaming visible output|System prompt/i)
-    await expect(page.getByRole('heading', { name: 'Dr. Wong Ka Ho' })).toBeVisible()
-    await expect(page.locator('#partners').getByText(/Specialty fit: TCM orthopedics \/ die-da traumatology/)).toBeVisible()
+    // User bubble appears
+    await expect(page.locator('.chat-msg.user')).toHaveCount(1)
 
-    await page.getByRole('button', { name: 'Open navigation menu' }).click()
-    await page.getByRole('button', { name: 'Schemas' }).click()
-    await expect(page.getByRole('heading', { name: 'See every populated schema, enum and scoring step.' })).toBeVisible()
-    await expect(page.getByText('Canonical intake schema')).toBeVisible()
-    await expect(page.getByText('"injury_sprain_strain"')).toBeVisible()
-    await expect(page.getByText('Match scoring visualization')).toBeVisible()
-    await expect(page.getByText('Specialty fit').first()).toBeVisible()
+    // AI response appears
+    await expect(page.locator('.chat-msg.ai')).toHaveCount(1)
+    await expect(page.locator('.chat-msg.ai .chat-msg-bubble')).toContainText('ankle sprain')
+
+    // Understanding panel
+    await expect(page.locator('.understanding-panel')).toBeVisible()
+    await expect(page.locator('.understanding-panel .title-card-header h2')).toHaveText('Here is how CMatch understood your concern')
+    await expect(page.locator('.category-tags .schema-tag').first()).toBeVisible()
+
+    // Match cards — top 3 always shown
+    await expect(page.locator('.matches-panel')).toBeVisible()
+    await expect(page.locator('.match-card')).toHaveCount(3)
+    await expect(page.locator('.match-band')).toHaveCount(3)
   })
 
-  test('runs a built-in dropdown test case', async ({ page }) => {
-    await mockDeepSeekStream(page, {
-      summary: 'Lower back pain after sitting with Wan Chai, Cantonese, acupuncture, and herb-avoidance preferences.',
-      domains: ['musculoskeletal_pain'],
-      bodyRegions: ['lower_back'],
-      symptomQualities: ['dull aching'],
-      safetyRoute: 'ok_to_match',
-      redFlags: ['none detected'],
-      missingImportantFields: [],
-      confidence: 'high',
-      preferences: {
-        districtsPreferred: ['wan_chai'],
-        languagesPreferred: ['cantonese'],
-        treatmentPreferences: ['acupuncture'],
-        treatmentAvoidances: ['herbal_medicine'],
+  test('uses quick-pick buttons to populate the chat', async ({ page }) => {
+    await mockConversation(page, {
+      text: 'Got it — lower back pain near Wan Chai. Let me ask a few quick questions.',
+      schema: {
+        ...defaultSchema,
+        complaint: {
+          ...defaultSchema.complaint,
+          domains: ['pain_musculoskeletal'],
+          bodyRegions: ['lower_back'],
+          symptomQualities: ['dull aching'],
+        },
+        preferences: {
+          ...defaultSchema.preferences,
+          districtsPreferred: ['wan_chai'],
+          languagesPreferred: ['cantonese'],
+          treatmentPreferences: ['acupuncture'],
+          treatmentAvoidances: ['herbal_medicine'],
+        },
+        practitionerPreferences: {
+          gender: 'unknown',
+          availability: { evenings: null, weekends: null },
+        },
       },
+      status: 'needs_clarification',
+      matches: [],
     })
-    await page.goto('/')
-    await page.getByRole('button', { name: /Find (a|your) practitioner/ }).first().click()
 
-    await page.getByText('Test cases').click()
-    await page.getByRole('button', { name: /Lower back pain · Wan Chai/i }).click()
+    await page.goto('/match')
 
-    await expect(page.getByRole('listbox', { name: 'CMatch test cases' })).not.toBeVisible()
-    await expect(page.locator('.readback-copy')).toContainText('Lower back pain for three weeks')
-    await expect(page.getByRole('button', { name: 'Edit concern' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible()
-    await expect(page.getByText(/Suggested specialists|Suggested practitioner profiles/).first()).toBeVisible()
+    await page.locator('.quick-picks button').first().click()
+    await expect(page.getByPlaceholder('Type your concern…')).toHaveValue(
+      'Lower back pain for 3 weeks, worse after sitting, near Wan Chai. Prefer Cantonese, open to acupuncture but not herbs.',
+    )
 
-    const completeBox = await page.locator('.composer-surface').boundingBox()
-    await page.getByRole('button', { name: 'Edit concern' }).click()
-    const editBox = await page.locator('.composer-surface').boundingBox()
-    expect(editBox?.height).toBe(completeBox?.height)
-    await expect(page.getByLabel('Describe your concern')).toBeEditable()
+    await page.locator('.chat-send').click()
+    await expect(page.locator('.chat-msg.user')).toHaveCount(1)
+    await expect(page.locator('.chat-msg.ai')).toHaveCount(1)
+    await expect(page.locator('.understanding-panel')).toBeVisible()
   })
 
-  test('routes severe acute chest symptoms to a safety warning before normal matching', async ({ page }) => {
-    await mockDeepSeekStream(page, {
-      summary: 'Chest pressure with arm numbness requiring safety gating.',
-      domains: ['musculoskeletal_pain'],
-      bodyRegions: ['chest', 'arm_elbow_hand'],
-      symptomQualities: ['pressure', 'numbness'],
-      safetyRoute: 'ok_to_match',
-      redFlags: ['none detected'],
-      missingImportantFields: [],
-      confidence: 'high',
-      preferences: {
-        districtsPreferred: ['remote_or_no_preference'],
-        languagesPreferred: ['no_preference'],
-        treatmentPreferences: [],
-        treatmentAvoidances: [],
+  test('shows a safety banner for severe acute symptoms', async ({ page }) => {
+    await mockConversation(page, {
+      text: 'Chest pressure with arm numbness can be serious. Please seek emergency care immediately.',
+      schema: {
+        ...defaultSchema,
+        complaint: {
+          ...defaultSchema.complaint,
+          domains: ['cardiovascular_circulation', 'neurological'],
+          bodyRegions: ['chest', 'arm_elbow_hand'],
+          symptomQualities: ['pressure', 'numbness'],
+        },
+        safety: { route: 'emergency_now', redFlags: ['Chest pressure with arm numbness'] },
+        practitionerPreferences: {
+          gender: 'unknown',
+          availability: { evenings: null, weekends: null },
+        },
       },
+      status: 'needs_clarification',
+      matches: [],
     })
-    await page.goto('/')
-    await page.getByRole('button', { name: /Find (a|your) practitioner/ }).first().click()
 
-    await page.getByLabel('Describe your concern').fill(
+    await page.goto('/match')
+
+    await page.getByPlaceholder('Type your concern…').fill(
       'I have severe crushing pressure in my chest and my left arm feels numb.',
     )
-    await page.getByRole('button', { name: 'Find matches' }).click()
+    await page.locator('.chat-send').click()
 
-    await expect(page.getByRole('alert')).toContainText('Medical safety boundary')
-    await expect(page.getByRole('alert')).toContainText('chest pain, pressure or radiating arm symptoms')
-    await expect(page.getByRole('heading', { name: 'Dr. Wong Ka Ho' })).not.toBeVisible()
+    await expect(page.locator('.safety-banner.emergency')).toBeVisible()
+    await expect(page.locator('.safety-banner.emergency')).toContainText('Emergency')
   })
 
-  test('waits for the structuring stream before publishing multi-issue schema and matches', async ({ page }) => {
-    let releaseStream: () => void = () => undefined
-    const streamGate = new Promise<void>((resolve) => {
-      releaseStream = resolve
-    })
-
-    await page.route('**/api/deepseek/analyze-stream', async (route) => {
-      await streamGate
-      const extraction = JSON.stringify({
-        summary: 'Headache and digestive discomfort with location, language, and needle-avoidance preferences.',
-        domains: ['headache_migraine', 'digestive_gastrointestinal'],
-        bodyRegions: ['head_face', 'abdomen'],
-        symptomQualities: ['headache', 'bloating'],
-        safetyRoute: 'ok_to_match',
-        redFlags: ['none detected'],
-        missingImportantFields: [],
-        confidence: 'high',
-        preferences: {
-          districtsPreferred: ['wan_chai', 'central_and_western'],
-          languagesPreferred: ['english', 'cantonese'],
-          treatmentPreferences: [],
-          treatmentAvoidances: ['acupuncture'],
-        },
-      })
-
-      await route.fulfill({
-        status: 200,
-        headers: {
-          'cache-control': 'no-store',
-          'content-type': 'text/event-stream; charset=utf-8',
-        },
-        body: [
-          'event: meta',
-          'data: {"model":"test-structurer"}',
-          '',
-          'event: delta',
-          `data: ${JSON.stringify({ text: extraction })}`,
-          '',
-          'event: done',
-          'data: {"model":"test-structurer"}',
-          '',
-          '',
-        ].join('\n'),
-      })
-    })
-
-    await page.goto('/')
-    await page.getByRole('button', { name: /Find (a|your) practitioner/ }).first().click()
-    await page.getByLabel('Describe your concern').fill(
-      'I have headaches and bloating. I prefer English or Cantonese and a clinic near Wan Chai or Central. I want to avoid needles.',
-    )
-    await page.getByRole('button', { name: 'Find matches' }).click()
-
-    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible()
-    await expect(page.getByText('Here is how CMatch understood your concern')).not.toBeVisible()
-
-    releaseStream()
-
-    await expect(page.getByText('Here is how CMatch understood your concern')).toBeVisible()
-    await expect(page.locator('.readback-copy')).toContainText(/headache \/ migraine/i)
-    await expect(page.locator('.readback-copy')).toContainText(/digestive \/ gastrointestinal/i)
-    await expect(page.locator('.readback-copy')).toContainText(/Central & Western.*Wan Chai|Wan Chai.*Central & Western/i)
-    await expect(page.locator('.readback-copy')).toContainText(/Cantonese.*English|English.*Cantonese/i)
-    await expect(page.locator('.readback-copy')).toContainText(/Acupuncture/i)
-    await expect(page.getByText('Suggested specialists', { exact: true })).toBeVisible()
+  test('navigates to debug page from menu', async ({ page }) => {
+    await page.goto('/match')
+    await page.locator('.menu-dot').click()
+    await page.getByRole('button', { name: 'Debug' }).click()
+    await expect(page).toHaveURL(/\/debug$/)
+    await expect(page.locator('.debug-page h1')).toHaveText('Debug')
   })
 })

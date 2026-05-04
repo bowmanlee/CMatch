@@ -8,7 +8,7 @@ test('local CMatch API reports health and model configuration', async ({ request
   expect(body).toMatchObject({
     ok: true,
     service: 'cmatch-api',
-    model: 'deepseek-v4-flash',
+    model: 'deepseek-chat',
   })
   expect(typeof body.deepseekConfigured).toBe('boolean')
 })

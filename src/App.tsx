@@ -1,43 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
+import { flushSync } from 'react-dom'
 import './App.css'
+import type { Language, HKDistrict, ComplaintDomain, BodyRegion, TreatmentModality, SafetyRoute, AgeBand, Practitioner, Specialty } from '../shared/practitioners.ts'
+import { DOMAIN_TO_SPECIALTIES } from '../shared/practitioners.ts'
+import practitionersData from '../shared/practitioners.json'
+
+const LazyDebugPage = import.meta.env.DEV
+  ? lazy(() => import('./DebugPage'))
+  : () => null
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-type Language = 'cantonese' | 'english' | 'mandarin' | 'no_preference'
-type HKDistrict =
-  | 'central_and_western' | 'wan_chai' | 'eastern' | 'yau_tsim_mong'
-  | 'sham_shui_po' | 'kowloon_city' | 'kwun_tong' | 'sha_tin' | 'tsuen_wan'
-  | 'remote_or_no_preference'
-
-type ComplaintDomain =
-  | 'musculoskeletal_pain' | 'injury_sprain_strain' | 'headache_migraine'
-  | 'digestive_gastrointestinal' | 'respiratory_ent' | 'skin_dermatology'
-  | 'gynecology_menstrual' | 'fertility_reproductive' | 'pregnancy_postpartum'
-  | 'pediatrics' | 'sleep_fatigue_stress' | 'chronic_condition_support'
-  | 'wellness_prevention' | 'unknown'
-
-type BodyRegion =
-  | 'head_face' | 'neck' | 'shoulder' | 'arm_elbow_hand' | 'chest'
-  | 'upper_back' | 'lower_back' | 'abdomen' | 'pelvis_hip' | 'knee'
-  | 'ankle_foot' | 'skin_general' | 'whole_body' | 'unknown'
-
-type TreatmentModality =
-  | 'herbal_medicine' | 'acupuncture' | 'tuina' | 'bonesetting'
-  | 'cupping' | 'moxibustion' | 'diet_lifestyle_guidance' | 'integrative_referral'
-
-type SafetyRoute =
-  | 'emergency_now' | 'urgent_western_medical_review'
-  | 'human_review_before_matching' | 'ok_to_match'
-
-type AnalysisStatus = 'idle' | 'thinking' | 'ready' | 'error'
+type AnalysisStatus = 'idle' | 'thinking' | 'streaming' | 'ready' | 'error'
 
 type CanonicalIntake = {
   schemaVersion: 'cmatch.intake.v1'
   source: { rawText: string; language: 'zh-HK' | 'zh-CN' | 'en' | 'mixed' | 'unknown' }
   patientContext: {
-    ageBand: 'adult_18_64' | 'older_adult_65_plus' | 'teen_13_17' | 'child_2_12' | 'unknown'
+    ageBand: AgeBand
     pregnancyStatus: 'not_applicable' | 'pregnant' | 'possibly_pregnant' | 'postpartum' | 'unknown'
   }
   complaint: {
@@ -56,30 +38,9 @@ type CanonicalIntake = {
     treatmentAvoidances: TreatmentModality[]
   }
   extractionMeta: {
-    confidence: 'high' | 'medium' | 'low'
     missingImportantFields: string[]
     needsHumanReview: boolean
   }
-}
-
-type Practitioner = {
-  id: string
-  displayName: string
-  title: string
-  gender: 'female' | 'male'
-  clinicName: string
-  districts: HKDistrict[]
-  areas: string[]
-  mtrNearby: string[]
-  languages: Language[]
-  specialties: string[]
-  modalities: TreatmentModality[]
-  accepts: { ageBands: string[]; pregnancyRelated: boolean; children: boolean }
-  availability: { nextAvailable: string; evenings: boolean; weekends: boolean; acceptingNewPatients: boolean }
-  experienceYears: number
-  priceRange: '$' | '$$' | '$$$'
-  bio: string
-  profileQuality: number
 }
 
 type AiMatch = {
@@ -90,48 +51,58 @@ type AiMatch = {
   cautions: string[]
 }
 
-type ChatMessage =
+export type ChatMessage =
   | { role: 'user'; text: string }
   | { role: 'ai'; text: string; schema?: CanonicalIntake; status?: string; matches?: AiMatch[] }
 
-type AppPage = 'match' | 'about' | 'debug'
+type AppPage = 'home' | 'match' | 'about' | 'debug'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LABELS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const domainLabels: Record<ComplaintDomain, string> = {
-  musculoskeletal_pain: 'Musculoskeletal pain',
-  injury_sprain_strain: 'Injury / sprain / strain',
-  headache_migraine: 'Headache / migraine',
-  digestive_gastrointestinal: 'Digestive / gastrointestinal',
-  respiratory_ent: 'Respiratory / ENT',
-  skin_dermatology: 'Skin / dermatology',
-  gynecology_menstrual: 'Gynecology / menstrual',
-  fertility_reproductive: 'Fertility / reproductive',
-  pregnancy_postpartum: 'Pregnancy / postpartum',
-  pediatrics: 'Pediatrics',
-  sleep_fatigue_stress: 'Sleep / fatigue / stress',
-  chronic_condition_support: 'Chronic condition support',
-  wellness_prevention: 'Wellness / prevention',
-  unknown: 'Unknown domain',
+  pain_musculoskeletal: 'Pain & Musculoskeletal (疼痛与筋骨)',
+  pain_headache: 'Headache & Migraine (头痛)',
+  neurological: 'Neurological (神经与眩晕)',
+  digestive: 'Digestive (消化)',
+  respiratory_allergy: 'Respiratory & Allergy (呼吸与过敏)',
+  skin_dermatology: 'Skin & Dermatology (皮肤)',
+  sleep_energy: 'Sleep & Energy (睡眠与精力)',
+  mental_emotional: 'Mental & Emotional (情志与情绪)',
+  women_health: "Women's Health (妇科与生殖)",
+  men_health: "Men's Health (男科)",
+  cardiovascular_circulation: 'Cardiovascular & Circulation (心血管)',
+  urinary_kidney: 'Urinary & Kidney (泌尿与肾)',
+  ent: 'Ear, Nose & Throat (耳鼻喉)',
+  eye_vision: 'Eye & Vision (眼科)',
+  dental_oral: 'Dental & Oral (口腔)',
+  endocrine_metabolic: 'Endocrine & Metabolic (内分泌与代谢)',
+  oncology_support: 'Oncology Support (肿瘤康复)',
+  wellness_prevention: 'Wellness & Prevention (保健)',
+  unknown: 'Unknown / unclear',
 }
 
 const bodyRegionLabels: Record<BodyRegion, string> = {
   head_face: 'Head / face', neck: 'Neck', shoulder: 'Shoulder',
   arm_elbow_hand: 'Arm / elbow / hand', chest: 'Chest',
   upper_back: 'Upper back', lower_back: 'Lower back',
-  abdomen: 'Abdomen / digestive', pelvis_hip: 'Pelvis / hip',
+  abdomen: 'Abdomen', pelvis_hip: 'Pelvis / hip',
   knee: 'Knee', ankle_foot: 'Ankle / foot',
   skin_general: 'Skin', whole_body: 'Whole body', unknown: 'Unknown region',
 }
 
 const districtLabels: Record<HKDistrict, string> = {
   central_and_western: 'Central & Western', wan_chai: 'Wan Chai',
-  eastern: 'Eastern', yau_tsim_mong: 'Yau Tsim Mong',
-  sham_shui_po: 'Sham Shui Po', kowloon_city: 'Kowloon City',
-  kwun_tong: 'Kwun Tong', sha_tin: 'Sha Tin',
-  tsuen_wan: 'Tsuen Wan', remote_or_no_preference: 'No district preference',
+  eastern: 'Eastern', southern: 'Southern',
+  yau_tsim_mong: 'Yau Tsim Mong', sham_shui_po: 'Sham Shui Po',
+  kowloon_city: 'Kowloon City', wong_tai_sin: 'Wong Tai Sin',
+  kwun_tong: 'Kwun Tong', kwai_tsing: 'Kwai Tsing',
+  tsuen_wan: 'Tsuen Wan', tuen_mun: 'Tuen Mun',
+  yuen_long: 'Yuen Long', north: 'North',
+  tai_po: 'Tai Po', sha_tin: 'Sha Tin',
+  sai_kung: 'Sai Kung', islands: 'Islands',
+  remote_or_no_preference: 'No district preference',
 }
 
 const languageLabels: Record<Language, string> = {
@@ -155,7 +126,7 @@ const severityLabels: Record<string, string> = {
   mild: 'Mild', moderate: 'Moderate', severe: 'Severe / sudden', unknown: 'Unknown',
 }
 
-const ageBandLabels: Record<string, string> = {
+const ageBandLabels: Record<AgeBand, string> = {
   adult_18_64: 'Adult 18–64', older_adult_65_plus: 'Older adult 65+',
   teen_13_17: 'Teen 13–17', child_2_12: 'Child 2–12', unknown: 'Unknown',
 }
@@ -172,74 +143,158 @@ const safetyRouteLabels: Record<SafetyRoute, string> = {
   ok_to_match: 'No emergency signals detected',
 }
 
+const specialtyLabels: Record<Specialty, string> = {
+  internal_medicine: 'Internal Medicine (内科)',
+  surgery: 'Surgery (外科)',
+  obstetrics_gynecology: 'Obstetrics & Gynecology (妇产科)',
+  pediatrics: 'Pediatrics (儿科)',
+  dermatology: 'Dermatology (皮肤科)',
+  ophthalmology: 'Ophthalmology (眼科)',
+  otorhinolaryngology: 'Otorhinolaryngology (耳鼻咽喉科)',
+  stomatology: 'Stomatology (口腔科)',
+  oncology: 'Oncology (肿瘤科)',
+  orthopedics_traumatology: 'Orthopedics & Traumatology (骨伤科)',
+  proctology: 'Proctology (肛肠科)',
+  geriatrics: 'Geriatrics (老年病科)',
+  acupuncture: 'Acupuncture (针灸科)',
+  tuina: 'Tuina (推拿科)',
+  emergency_medicine: 'Emergency Medicine (急诊科)',
+  rehabilitation_medicine: 'Rehabilitation Medicine (康复医学)',
+  preventive_healthcare: 'Preventive Healthcare (预防保健科)',
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRACTITIONER DATABASE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const practitioners: Practitioner[] = [
-  {
-    id: 'cmp-001', displayName: 'Dr. Chan Mei Ling', title: 'Registered Chinese Medicine Practitioner', gender: 'female',
-    clinicName: 'Central Harmony Chinese Medicine', districts: ['central_and_western'], areas: ['Sheung Wan', 'Central'],
-    mtrNearby: ['Sheung Wan', 'Central'], languages: ['cantonese', 'english', 'mandarin'],
-    specialties: ['general_chinese_medicine', 'gynecology', 'fertility_support', 'internal_medicine_digestive'],
-    modalities: ['herbal_medicine', 'acupuncture', 'diet_lifestyle_guidance'],
-    accepts: { ageBands: ['adult_18_64', 'older_adult_65_plus'], pregnancyRelated: true, children: false },
-    availability: { nextAvailable: '1-3 days', evenings: true, weekends: false, acceptingNewPatients: true },
-    experienceYears: 14, priceRange: '$$$', bio: 'Focused on calm, evidence-aware consultations for digestive, menstrual and fertility-related concerns.', profileQuality: 0.95,
-  },
-  {
-    id: 'cmp-002', displayName: 'Dr. Wong Ka Ho', title: 'Registered Chinese Medicine Practitioner', gender: 'male',
-    clinicName: 'Mong Kok Die-Da & Rehab Clinic', districts: ['yau_tsim_mong'], areas: ['Mong Kok', 'Prince Edward'],
-    mtrNearby: ['Mong Kok', 'Prince Edward'], languages: ['cantonese', 'mandarin'],
-    specialties: ['bone_traumatology_die_da', 'tuina_rehabilitation', 'acupuncture_pain'],
-    modalities: ['bonesetting', 'tuina', 'acupuncture', 'cupping'],
-    accepts: { ageBands: ['teen_13_17', 'adult_18_64'], pregnancyRelated: false, children: false },
-    availability: { nextAvailable: 'Today', evenings: true, weekends: true, acceptingNewPatients: true },
-    experienceYears: 18, priceRange: '$$', bio: 'Injury-focused practice for sprains, strains, neck and back pain with clear referral boundaries.', profileQuality: 0.9,
-  },
-  {
-    id: 'cmp-003', displayName: 'Dr. Lee Siu Ming', title: 'Registered Chinese Medicine Practitioner', gender: 'male',
-    clinicName: 'Sha Tin Acupuncture Pain Centre', districts: ['sha_tin'], areas: ['Sha Tin Centre', 'Fo Tan'],
-    mtrNearby: ['Sha Tin'], languages: ['cantonese', 'english'],
-    specialties: ['acupuncture_pain', 'tuina_rehabilitation', 'elderly_care', 'chronic_condition_support'],
-    modalities: ['acupuncture', 'tuina', 'cupping', 'diet_lifestyle_guidance'],
-    accepts: { ageBands: ['adult_18_64', 'older_adult_65_plus'], pregnancyRelated: false, children: false },
-    availability: { nextAvailable: '4-7 days', evenings: false, weekends: true, acceptingNewPatients: true },
-    experienceYears: 21, priceRange: '$$', bio: 'Pain and mobility consultations for office posture issues, chronic aches and older adult mobility concerns.', profileQuality: 0.88,
-  },
-  {
-    id: 'cmp-004', displayName: 'Dr. Lam Hoi Yan', title: 'Registered Chinese Medicine Practitioner', gender: 'female',
-    clinicName: "Wan Chai Women's CM Clinic", districts: ['wan_chai'], areas: ['Wan Chai', 'Admiralty'],
-    mtrNearby: ['Wan Chai'], languages: ['cantonese', 'english', 'mandarin'],
-    specialties: ['gynecology', 'pregnancy_postpartum_support', 'fertility_support', 'sleep_stress_fatigue'],
-    modalities: ['herbal_medicine', 'acupuncture', 'moxibustion', 'diet_lifestyle_guidance'],
-    accepts: { ageBands: ['adult_18_64'], pregnancyRelated: true, children: false },
-    availability: { nextAvailable: '1-3 days', evenings: false, weekends: true, acceptingNewPatients: true },
-    experienceYears: 12, priceRange: '$$$', bio: "Women's health and postpartum support with explicit caution checks for pregnancy-related concerns.", profileQuality: 0.93,
-  },
-  {
-    id: 'cmp-005', displayName: 'Dr. Ng Tsz Chun', title: 'Registered Chinese Medicine Practitioner', gender: 'male',
-    clinicName: 'Kowloon Digestive & Sleep Studio', districts: ['kowloon_city', 'sham_shui_po'], areas: ['Ho Man Tin', 'Lai Chi Kok'],
-    mtrNearby: ['Ho Man Tin', 'Lai Chi Kok'], languages: ['cantonese', 'english'],
-    specialties: ['internal_medicine_digestive', 'sleep_stress_fatigue', 'general_chinese_medicine'],
-    modalities: ['herbal_medicine', 'diet_lifestyle_guidance', 'acupuncture'],
-    accepts: { ageBands: ['adult_18_64', 'older_adult_65_plus'], pregnancyRelated: false, children: false },
-    availability: { nextAvailable: 'More than 1 week', evenings: true, weekends: false, acceptingNewPatients: true },
-    experienceYears: 9, priceRange: '$$', bio: 'Digestive discomfort, fatigue and sleep support with careful medication and herb interaction screening.', profileQuality: 0.84,
-  },
-  {
-    id: 'cmp-006', displayName: 'Dr. Tse Wing Yan', title: 'Registered Chinese Medicine Practitioner', gender: 'female',
-    clinicName: 'Tsuen Wan Family CM Centre', districts: ['tsuen_wan'], areas: ['Tsuen Wan', 'Discovery Park'],
-    mtrNearby: ['Tsuen Wan'], languages: ['cantonese', 'mandarin'],
-    specialties: ['pediatrics', 'respiratory_ent', 'dermatology', 'general_chinese_medicine'],
-    modalities: ['herbal_medicine', 'diet_lifestyle_guidance', 'tuina'],
-    accepts: { ageBands: ['child_2_12', 'teen_13_17', 'adult_18_64'], pregnancyRelated: false, children: true },
-    availability: { nextAvailable: '4-7 days', evenings: true, weekends: true, acceptingNewPatients: true },
-    experienceYears: 16, priceRange: '$$', bio: 'Family-oriented practice for pediatric, respiratory, ENT and skin-related Chinese medicine consultations.', profileQuality: 0.89,
-  },
-]
+const practitioners = practitionersData as Practitioner[]
 
 const practitionerMap = new Map(practitioners.map((p) => [p.id, p]))
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENT-SIDE PRACTITIONER SCORING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function scorePractitioners(schema: CanonicalIntake, practitionersList: Practitioner[]): AiMatch[] {
+  const relevantSpecialties = new Set<Specialty>()
+  for (const domain of schema.complaint.domains) {
+    if (domain === 'unknown') continue
+    for (const specialty of DOMAIN_TO_SPECIALTIES[domain]) {
+      relevantSpecialties.add(specialty)
+    }
+  }
+
+  return practitionersList
+    .map((p) => {
+      let score = 0
+      const reasons: string[] = []
+      const cautions: string[] = []
+
+      // 1. Specialty match (0–50 points)
+      const specialtyOverlap = p.specialties.filter((s) => relevantSpecialties.has(s))
+      if (specialtyOverlap.length > 0) {
+        score += 30 + Math.min(20, specialtyOverlap.length * 10)
+        reasons.push(`Specialises in ${specialtyOverlap.map((s) => specialtyLabels[s]).join(', ')}`)
+      }
+
+      // 2. District match (0–20 points)
+      const districtOverlap = p.districts.filter(
+        (d) =>
+          schema.preferences.districtsPreferred.includes(d) ||
+          schema.preferences.districtsPreferred.includes('remote_or_no_preference'),
+      )
+      if (districtOverlap.length > 0 || schema.preferences.districtsPreferred.length === 0) {
+        score += 20
+        if (districtOverlap.length > 0) {
+          reasons.push(`Available in ${districtOverlap.map((d) => districtLabels[d]).join(', ')}`)
+        }
+      }
+
+      // 3. Language match (0–15 points)
+      const langOverlap = p.languages.filter(
+        (l) =>
+          schema.preferences.languagesPreferred.includes(l) ||
+          schema.preferences.languagesPreferred.includes('no_preference'),
+      )
+      if (langOverlap.length > 0 || schema.preferences.languagesPreferred.length === 0) {
+        score += 15
+        if (langOverlap.length > 0) {
+          reasons.push(`Speaks ${langOverlap.map((l) => languageLabels[l]).join(', ')}`)
+        }
+      }
+
+      // 4. Modality preference (0–10 points)
+      const modalityOverlap = p.modalities.filter((m) => schema.preferences.treatmentPreferences.includes(m))
+      if (modalityOverlap.length > 0) {
+        score += 10
+        reasons.push(`Offers ${modalityOverlap.map((m) => modalityLabels[m]).join(', ')}`)
+      }
+
+      // 5. Age band hard filter
+      if (
+        !p.accepts.ageBands.includes(schema.patientContext.ageBand) &&
+        schema.patientContext.ageBand !== 'unknown'
+      ) {
+        score = -1000
+        cautions.push(`Does not accept ${ageBandLabels[schema.patientContext.ageBand]} patients`)
+      }
+
+      // 7. Pregnancy hard filter
+      if (
+        (schema.patientContext.pregnancyStatus === 'pregnant' ||
+          schema.patientContext.pregnancyStatus === 'postpartum') &&
+        !p.accepts.pregnancyRelated
+      ) {
+        score = -1000
+        cautions.push('Does not accept pregnancy-related cases')
+      }
+
+      const normalizedScore = Math.max(0, Math.min(1, score / 100))
+
+      let band: AiMatch['band']
+      if (normalizedScore >= 0.75) band = 'Strong match'
+      else if (normalizedScore >= 0.5) band = 'Good match'
+      else band = 'Possible match'
+
+      return {
+        practitionerId: p.id,
+        score: normalizedScore,
+        band,
+        reasons,
+        cautions,
+      }
+    })
+    .filter((m) => m.score > 0)
+    .sort((a, b) => b.score - a.score)
+}
+
+// Visual-only schema shown immediately when user sends a message.
+// All fields are empty/unknown so tags render as gray placeholders.
+// The AI-populated schema replaces this on first response.
+const initialPanelSchema: CanonicalIntake = {
+  schemaVersion: 'cmatch.intake.v1',
+  source: { rawText: '', language: 'unknown' },
+  patientContext: { ageBand: 'unknown', pregnancyStatus: 'unknown' },
+  complaint: {
+    domains: [],
+    bodyRegions: [],
+    symptomQualities: [],
+    duration: 'unknown',
+    severity: 'unknown',
+    functionalImpact: [],
+  },
+  safety: { route: 'ok_to_match', redFlags: [] },
+  preferences: {
+    districtsPreferred: [],
+    languagesPreferred: [],
+    treatmentPreferences: [],
+    treatmentAvoidances: [],
+  },
+  extractionMeta: {
+    missingImportantFields: [],
+    needsHumanReview: false,
+  },
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP SHELL — only left dot menu + side drawer, NO top nav bar
@@ -259,11 +314,23 @@ function AppShell({
   onNavigate: (page: AppPage) => void
 }) {
   const isActive = (page: AppPage) => currentPage === page
+  const [showDot, setShowDot] = useState(true)
+
+  useEffect(() => {
+    if (menuOpen) {
+      queueMicrotask(() => setShowDot(false))
+      return
+    }
+    const DRAWER_CLOSE_MS = 360
+    const DOT_DELAY_MS = 0
+    const timer = setTimeout(() => setShowDot(true), DRAWER_CLOSE_MS + DOT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [menuOpen])
 
   return (
     <div className="app-shell">
       {/* Single dot menu button — fixed, top-left, hides when drawer is open */}
-      {!menuOpen && (
+      {showDot && (
         <button
           className="menu-dot"
           onClick={onMenuToggle}
@@ -279,17 +346,14 @@ function AppShell({
       <aside className={`side-drawer ${menuOpen ? 'is-open' : ''}`} role="dialog" aria-label="Navigation menu">
         <div className="drawer-head">
           <strong>CMatch</strong>
-          <button onClick={onMenuToggle} aria-label="Close menu">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
         </div>
         <nav className="drawer-nav">
+          <button className={`drawer-link ${isActive('home') ? 'active' : ''}`} onClick={() => { onNavigate('home'); onMenuToggle() }}>Home</button>
           <button className={`drawer-link ${isActive('match') ? 'active' : ''}`} onClick={() => { onNavigate('match'); onMenuToggle() }}>Match</button>
           <button className={`drawer-link ${isActive('about') ? 'active' : ''}`} onClick={() => { onNavigate('about'); onMenuToggle() }}>About</button>
-          <button className={`drawer-link ${isActive('debug') ? 'active' : ''}`} onClick={() => { onNavigate('debug'); onMenuToggle() }}>Debug</button>
+          {import.meta.env.DEV && (
+            <button className={`drawer-link ${isActive('debug') ? 'active' : ''}`} onClick={() => { onNavigate('debug'); onMenuToggle() }}>Debug</button>
+          )}
         </nav>
       </aside>
 
@@ -303,68 +367,326 @@ function AppShell({
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function formatQuality(text: string): string {
-  return text
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  return text.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-function Tag({ label, value, delay }: { label: string; value: string | null; delay: number }) {
-  const isMissing = !value || value.includes('Unknown') || value.includes('No preference') || value.includes('None specified')
+function getFieldValue(
+  label: string,
+  schema: CanonicalIntake
+): string | null {
+  switch (label) {
+    case 'Issue':
+      return schema.complaint.domains.map((d) => domainLabels[d]).join(', ') || null
+    case 'Where':
+      return schema.complaint.bodyRegions.map((r) => bodyRegionLabels[r]).join(', ') || null
+    case 'Details':
+      return schema.complaint.symptomQualities.map(formatQuality).join(', ') || null
+    case 'Duration':
+      return durationLabels[schema.complaint.duration] ?? 'Unknown'
+    case 'Severity':
+      return severityLabels[schema.complaint.severity] ?? 'Unknown'
+    case 'Age':
+      return ageBandLabels[schema.patientContext.ageBand] ?? 'Unknown'
+    case 'Pregnancy':
+      return pregnancyLabels[schema.patientContext.pregnancyStatus] ?? 'Unknown'
+    case 'District':
+      return schema.preferences.districtsPreferred.map((d) => districtLabels[d]).join(', ') || null
+    case 'Language':
+      return schema.preferences.languagesPreferred.map((l) => languageLabels[l]).join(', ') || null
+    case 'Treatment preference':
+      return schema.preferences.treatmentPreferences.map((m) => modalityLabels[m]).join(', ') || 'No preference'
+    case 'Avoidances':
+      return schema.preferences.treatmentAvoidances.map((m) => modalityLabels[m]).join(', ') || 'None specified'
+    default:
+      return null
+  }
+}
+
+function isMissingValue(value: string | null): boolean {
+  if (value === null || value === undefined) return true
+  const v = value.trim()
+  if (v === '') return true
+  const missingSentinels = ['Unknown', 'No district preference', 'No language preference', 'No preference', 'None specified', 'Not provided']
+  return missingSentinels.includes(v)
+}
+
+/*
+  Animation state for a tag:
+  - 'initial': first time panel appears, tag is gray with label only
+  - 'populate': was missing, now filled — type text in, then gray→green swipe
+  - 'update': was filled with value A, now filled with value B — delete old, type new
+  - 'remove': was filled, now missing — delete text, then green→gray swipe
+  - 'static': unchanged, no animation
+*/
+function getTagAnimState(
+  label: string,
+  currentSchema: CanonicalIntake,
+  previousSchema: CanonicalIntake | null,
+  isFirstAppearance: boolean
+): 'initial' | 'populate' | 'update' | 'remove' | 'static' {
+  const current = getFieldValue(label, currentSchema)
+  const prev = previousSchema ? getFieldValue(label, previousSchema) : null
+
+  const currentMissing = isMissingValue(current)
+  const prevMissing = prev === null || isMissingValue(prev)
+
+  if (isFirstAppearance) {
+    return currentMissing ? 'initial' : 'populate'
+  }
+
+  if (prevMissing && !currentMissing) return 'populate'
+  if (!prevMissing && currentMissing) return 'remove'
+  if (!prevMissing && !currentMissing && current !== prev) return 'update'
+  return 'static'
+}
+
+function TagPill({
+  label,
+  value,
+  prevValue,
+  animState,
+  delay,
+}: {
+  label: string
+  value: string | null
+  prevValue: string | null
+  animState: 'initial' | 'populate' | 'update' | 'remove' | 'static'
+  delay: number
+}) {
+  const valueRef = useRef<HTMLSpanElement>(null)
+  const [phase, setPhase] = useState<'idle' | 'typing' | 'deleting' | 'swipe-in' | 'swipe-out'>('idle')
+  const timerRef = useRef<number | null>(null)
+  const intervalRef = useRef<number | null>(null)
+  const missing = isMissingValue(value)
+  const sourceText = prevValue || ''
+  const targetText = value || ''
+
+  const clearAll = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  const typeText = useCallback((text: string, onComplete: () => void) => {
+    setPhase('typing')
+    const el = valueRef.current
+    if (!el || text.length === 0) {
+      onComplete()
+      return
+    }
+    let i = 0
+    el.textContent = text.charAt(0)
+    i = 1
+    if (i >= text.length) {
+      onComplete()
+      return
+    }
+    intervalRef.current = window.setInterval(() => {
+      if (valueRef.current) {
+        valueRef.current.textContent = text.slice(0, i + 1)
+      }
+      i++
+      if (i >= text.length) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current)
+          intervalRef.current = null
+        }
+        onComplete()
+      }
+    }, 30)
+  }, [])
+
+  const deleteText = useCallback((text: string, onComplete: () => void) => {
+    setPhase('deleting')
+    const el = valueRef.current
+    if (!el || text.length === 0) {
+      onComplete()
+      return
+    }
+    let i = text.length
+    intervalRef.current = window.setInterval(() => {
+      if (valueRef.current) {
+        valueRef.current.textContent = text.slice(0, i)
+      }
+      i--
+      if (i < 0) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current)
+          intervalRef.current = null
+        }
+        onComplete()
+      }
+    }, 20)
+  }, [])
+
+  // Synchronously reset/correct DOM text before the browser paints,
+  // preventing stale text from flashing when a tag becomes visible or
+  // when an interrupted animation is replaced by a new one.
+  useLayoutEffect(() => {
+    if (!valueRef.current) return
+    if (animState === 'static') {
+      valueRef.current.textContent = targetText
+    } else if (animState === 'update' && sourceText) {
+      valueRef.current.textContent = sourceText
+    } else if (animState === 'remove' && sourceText) {
+      valueRef.current.textContent = sourceText
+    } else {
+      valueRef.current.textContent = ''
+    }
+  }, [animState, targetText, sourceText])
+
+  useEffect(() => {
+    clearAll()
+
+    if (animState === 'static') {
+      queueMicrotask(() => setPhase(missing ? 'idle' : 'swipe-in'))
+      return clearAll
+    }
+
+    if (animState === 'initial') {
+      queueMicrotask(() => setPhase('idle'))
+      return clearAll
+    }
+
+    timerRef.current = window.setTimeout(() => {
+      if (animState === 'populate') {
+        typeText(targetText, () => setPhase('swipe-in'))
+      } else if (animState === 'update') {
+        if (sourceText) {
+          deleteText(sourceText, () => {
+            typeText(targetText, () => setPhase('swipe-in'))
+          })
+        } else {
+          typeText(targetText, () => setPhase('swipe-in'))
+        }
+      } else if (animState === 'remove') {
+        if (sourceText) {
+          deleteText(sourceText, () => queueMicrotask(() => setPhase('swipe-out')))
+        } else {
+          queueMicrotask(() => setPhase('swipe-out'))
+        }
+      }
+    }, delay)
+
+    return clearAll
+  }, [animState, targetText, sourceText, delay, missing, clearAll, typeText, deleteText])
+
   return (
-    <span className={`schema-tag ${isMissing ? 'missing' : 'filled'}`} style={{ animationDelay: `${delay}ms` }}>
-      <small>{label}</small>
-      {isMissing ? <em>Not provided</em> : <strong>{value}</strong>}
+    <span
+      className={`schema-tag ${missing ? 'missing' : 'filled'}`}
+      data-phase={phase}
+    >
+      <span className="tag-bg" aria-hidden="true" />
+      <span className="tag-label">{label}</span>
+      <span className="tag-value" ref={valueRef} />
     </span>
   )
 }
 
-function CategoryRow({ title, tags, baseDelay }: { title: string; tags: Array<{ label: string; value: string | null }>; baseDelay: number }) {
+function CategoryRow({
+  title,
+  tags,
+  isFirstAppearance,
+  previousSchema,
+  currentSchema,
+  baseDelay,
+}: {
+  title: string
+  tags: Array<{ label: string }>
+  isFirstAppearance: boolean
+  previousSchema: CanonicalIntake | null
+  currentSchema: CanonicalIntake
+  baseDelay: number
+}) {
   return (
-    <div className="category-row" style={{ animationDelay: `${baseDelay}ms` }}>
+    <div className="category-row">
       <span className="category-title">{title}</span>
       <div className="category-tags">
-        {tags.map((t, i) => (
-          <Tag key={t.label} label={t.label} value={t.value} delay={baseDelay + i * 60} />
-        ))}
+        {tags.map((t, i) => {
+          const value = getFieldValue(t.label, currentSchema)
+          const prevValue = previousSchema ? getFieldValue(t.label, previousSchema) : null
+          const animState = getTagAnimState(t.label, currentSchema, previousSchema, isFirstAppearance)
+          return (
+            <TagPill
+              key={t.label}
+              label={t.label}
+              value={value}
+              prevValue={prevValue}
+              animState={animState}
+              delay={baseDelay + i * 150}
+            />
+          )
+        })}
       </div>
     </div>
   )
 }
 
-function UnderstandingPanel({ schema }: { schema: CanonicalIntake }) {
-  const qualities = schema.complaint.symptomQualities.map(formatQuality).join(', ') || null
-
-  const chiefComplaint = [
-    { label: 'Issue', value: schema.complaint.domains.map((d) => domainLabels[d]).join(', ') || null },
-    { label: 'Where', value: schema.complaint.bodyRegions.map((r) => bodyRegionLabels[r]).join(', ') || null },
-    { label: 'Details', value: qualities },
-    { label: 'Duration', value: durationLabels[schema.complaint.duration] ?? 'Unknown' },
-    { label: 'Severity', value: severityLabels[schema.complaint.severity] ?? 'Unknown' },
-  ]
-
-  const patientProfile = [
-    { label: 'Age', value: ageBandLabels[schema.patientContext.ageBand] ?? 'Unknown' },
-    { label: 'Pregnancy', value: pregnancyLabels[schema.patientContext.pregnancyStatus] ?? 'Unknown' },
-  ]
-
-  const preferences = [
-    { label: 'District', value: schema.preferences.districtsPreferred.map((d) => districtLabels[d]).join(', ') || null },
-    { label: 'Language', value: schema.preferences.languagesPreferred.map((l) => languageLabels[l]).join(', ') || null },
-    { label: 'Treatment preference', value: schema.preferences.treatmentPreferences.map((m) => modalityLabels[m]).join(', ') || 'No preference' },
-    { label: 'Avoidances', value: schema.preferences.treatmentAvoidances.map((m) => modalityLabels[m]).join(', ') || 'None specified' },
-  ]
-
+function TitleCard({
+  title,
+  children,
+  className = '',
+  action,
+}: {
+  title: string
+  children: React.ReactNode
+  className?: string
+  action?: React.ReactNode
+}) {
   return (
-    <section className="understanding-panel">
-      <div className="panel-header" style={{ animationDelay: '0ms' }}>
-        <h2>Here is how CMatch understood your concern</h2>
-        <span className={`confidence-badge ${schema.extractionMeta.confidence}`}>{schema.extractionMeta.confidence}</span>
+    <section className={`title-card ${className}`}>
+      <div className="title-card-header">
+        <h2>{title}</h2>
+        {action}
       </div>
+      {children}
+    </section>
+  )
+}
 
-      <CategoryRow title="Chief complaint" tags={chiefComplaint} baseDelay={80} />
-      <CategoryRow title="Patient profile" tags={patientProfile} baseDelay={380} />
-      <CategoryRow title="Preferences" tags={preferences} baseDelay={560} />
-
+function UnderstandingPanel({
+  schema,
+  previousSchema,
+  isFirstAppearance,
+}: {
+  schema: CanonicalIntake
+  previousSchema: CanonicalIntake | null
+  isFirstAppearance: boolean
+}) {
+  const chiefComplaint = useMemo(() => [{ label: 'Issue' }, { label: 'Where' }, { label: 'Details' }, { label: 'Duration' }, { label: 'Severity' }], [])
+  const patientProfile = useMemo(() => [{ label: 'Age' }, { label: 'Pregnancy' }], [])
+  const preferences = useMemo(() => [{ label: 'District' }, { label: 'Language' }, { label: 'Treatment preference' }, { label: 'Avoidances' }], [])
+  return (
+    <TitleCard title="Here is how CMatch understood your concern" className="understanding-panel">
+      <CategoryRow
+        title="Chief complaint"
+        tags={chiefComplaint}
+        isFirstAppearance={isFirstAppearance}
+        previousSchema={previousSchema}
+        currentSchema={schema}
+        baseDelay={0}
+      />
+      <CategoryRow
+        title="Patient profile"
+        tags={patientProfile}
+        isFirstAppearance={isFirstAppearance}
+        previousSchema={previousSchema}
+        currentSchema={schema}
+        baseDelay={750}
+      />
+      <CategoryRow
+        title="Preferences"
+        tags={preferences}
+        isFirstAppearance={isFirstAppearance}
+        previousSchema={previousSchema}
+        currentSchema={schema}
+        baseDelay={1050}
+      />
       {schema.safety.route !== 'ok_to_match' && (
         <div
           className={`safety-banner ${schema.safety.route === 'emergency_now' ? 'emergency' : schema.safety.route === 'urgent_western_medical_review' ? 'urgent' : 'review'}`}
@@ -374,21 +696,36 @@ function UnderstandingPanel({ schema }: { schema: CanonicalIntake }) {
           <p>{schema.safety.redFlags.join(', ')}</p>
         </div>
       )}
-    </section>
+    </TitleCard>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MATCHES PANEL (detached)
+// RECOMMENDED PRACTITIONERS PANEL — big practitioner cards
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function MatchesPanel({ matches }: { matches: AiMatch[] }) {
+function RecommendedPractitionersPanel({
+  matches,
+  isFirstAppearance,
+  showAll,
+  onToggleShowAll,
+}: {
+  matches: AiMatch[]
+  isFirstAppearance: boolean
+  showAll: boolean
+  onToggleShowAll: () => void
+}) {
   return (
-    <section className="matches-panel">
-      <div className="panel-header">
-        <h2>Suggested practitioners</h2>
-      </div>
-      <div className="matches-grid">
+    <TitleCard
+      title="Recommended practitioners"
+      className={`matches-panel ${isFirstAppearance ? 'animate-in' : ''}`}
+      action={
+        <button className="reset-btn" onClick={onToggleShowAll} type="button">
+          {showAll ? 'Hide' : 'Show all'}
+        </button>
+      }
+    >
+      <div className={`matches-grid ${isFirstAppearance ? 'animate-in' : ''}`}>
         {matches.map((match) => {
           const practitioner = practitionerMap.get(match.practitionerId)
           if (!practitioner) return null
@@ -401,25 +738,44 @@ function MatchesPanel({ matches }: { matches: AiMatch[] }) {
                 </div>
                 <span className={`match-band ${match.band.toLowerCase().replace(/\s/g, '-')}`}>{match.band}</span>
               </header>
-              <p className="match-bio">{practitioner.bio}</p>
-              <div className="match-meta">
-                <span>{practitioner.areas.join(' / ')}</span>
-                <span>{practitioner.languages.map((l) => languageLabels[l]).join(' · ')}</span>
-                <span>{practitioner.availability.nextAvailable}</span>
+              <div className="match-details">
+                <div className="match-detail">
+                  <svg className="match-detail-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span>{practitioner.areas.join(' / ')}</span>
+                </div>
+                <div className="match-detail">
+                  <svg className="match-detail-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                  <span>{practitioner.languages.map((l) => languageLabels[l]).join(' · ')}</span>
+                </div>
+                <div className="match-detail">
+                  <svg className="match-detail-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span>{practitioner.availability.nextAvailable}</span>
+                </div>
+                <div className="match-detail">
+                  <svg className="match-detail-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                  </svg>
+                  <span>{practitioner.modalities.map((m) => modalityLabels[m]).join(' · ')}</span>
+                </div>
               </div>
               <div className="match-reasons">
                 {match.reasons.map((r, i) => <span key={i} className="reason-tag">{r}</span>)}
               </div>
-              {match.cautions.length > 0 && (
-                <div className="match-cautions">
-                  {match.cautions.map((c, i) => <span key={i} className="caution-tag">{c}</span>)}
-                </div>
-              )}
             </article>
           )
         })}
       </div>
-    </section>
+    </TitleCard>
   )
 }
 
@@ -433,64 +789,61 @@ function ChatPanel({
   status,
   onInputChange,
   onSend,
+  suggestions,
 }: {
   messages: ChatMessage[]
   input: string
   status: AnalysisStatus
   onInputChange: (value: string) => void
   onSend: () => void
+  suggestions?: React.ReactNode
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages])
+
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }, [input])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
   }
 
-  const isThinking = status === 'thinking'
+  const isBusy = status === 'thinking' || status === 'streaming'
+  const isStreaming = status === 'streaming'
 
   return (
     <div className="chat-panel">
       <div className="chat-messages" ref={scrollRef}>
         {messages.length === 0 && (
-          <div className="chat-empty">
-            <p className="chat-empty-lead">How can we help you today?</p>
-            <p className="chat-empty-sub">Describe your symptoms, timing, location and care preferences.</p>
-            <div className="chat-quick-picks">
-              <button onClick={() => onInputChange('Lower back pain for 3 weeks, worse after sitting, near Wan Chai. Prefer Cantonese, open to acupuncture but not herbs.')}>Lower back pain</button>
-              <button onClick={() => onInputChange('I twisted my ankle two days ago. Walking hurts and it is swollen. I prefer a clinic near Mong Kok.')}>Ankle sprain</button>
-              <button onClick={() => onInputChange('Bloating after meals, low energy, and poor sleep for more than two months. I work near Ho Man Tin.')}>Digestion & sleep</button>
+          <>
+            <div className="chat-empty">
+              <p className="chat-empty-lead">Describe your symptoms, timing, location and care preferences.</p>
             </div>
-          </div>
+            {suggestions && <div className="chat-suggestions">{suggestions}</div>}
+          </>
         )}
-
         {messages.map((msg, i) => (
           <div key={i} className={`chat-msg ${msg.role}`}>
-            {msg.role === 'ai' && (
-              <div className="chat-msg-avatar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                </svg>
-              </div>
-            )}
-            <div className="chat-msg-bubble">{msg.text}</div>
+            <div className="chat-msg-bubble">
+              {msg.text}
+              {msg.role === 'ai' && isStreaming && i === messages.length - 1 && (
+                <span className="stream-cursor" />
+              )}
+            </div>
           </div>
         ))}
-
-        {isThinking && (
-          <div className="chat-msg ai">
-            <div className="chat-msg-avatar">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              </svg>
-            </div>
-            <div className="chat-msg-bubble thinking">
-              <span className="dot" /><span className="dot" /><span className="dot" />
+        {status === 'thinking' && (
+          <div className="chat-msg ai thinking-msg">
+            <div className="thinking-indicator">
+              <span className="thinking-label">Thinking</span>
             </div>
           </div>
         )}
@@ -498,15 +851,18 @@ function ChatPanel({
 
       <div className="chat-footer">
         <div className="chat-input-wrap">
-          <textarea
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your concern…"
-            rows={1}
-            disabled={isThinking}
-          />
-          <button className="chat-send" onClick={onSend} disabled={isThinking || input.trim().length === 0}>
+          <div className="textarea-box">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => onInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your concern…"
+              disabled={isBusy}
+              rows={1}
+            />
+          </div>
+          <button className="chat-send" onClick={onSend} disabled={isBusy || input.trim().length === 0}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -523,42 +879,114 @@ function ChatPanel({
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function MatchingPage({
-  messages, input, status, error, onInputChange, onSend,
+  messages, input, status, error, onInputChange, onSend, onReset,
 }: {
   messages: ChatMessage[]; input: string; status: AnalysisStatus; error: string
-  onInputChange: (value: string) => void; onSend: () => void
+  onInputChange: (value: string) => void; onSend: () => void; onReset?: () => void
 }) {
-  const latestSchema = useMemo(() => {
+  const { latestSchema, previousSchema } = useMemo(() => {
+    let latest: CanonicalIntake | null = null
+    let prev: CanonicalIntake | null = null
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i]
-      if (msg.role === 'ai' && msg.schema) return msg.schema
+      if (msg.role === 'ai' && msg.schema) {
+        if (!latest) {
+          latest = msg.schema
+        } else if (!prev) {
+          prev = msg.schema
+          break
+        }
+      }
     }
-    return null
+    return { latestSchema: latest, previousSchema: prev }
   }, [messages])
 
-  const latestMatches = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msg = messages[i]
-      if (msg.role === 'ai' && msg.matches) return msg.matches
+  const hasUserSentMessage = messages.some((m) => m.role === 'user')
+
+  // Show panel immediately when user sends a message (gray placeholder tags).
+  // When AI responds, tags animate from gray to green based on what changed.
+  const panelSchema = latestSchema ?? (hasUserSentMessage ? initialPanelSchema : null)
+  const panelPrevSchema = latestSchema ? (previousSchema ?? initialPanelSchema) : null
+  const isFirstAppearance = latestSchema !== null && previousSchema === null
+
+  // Client-side scoring: only match using REAL schema from AI responses
+  const clientSideMatches = useMemo(() => {
+    if (!latestSchema) return []
+    return scorePractitioners(latestSchema, practitioners)
+  }, [latestSchema])
+
+  const [showMatchCards, setShowMatchCards] = useState(false)
+  const [showAllPractitioners, setShowAllPractitioners] = useState(false)
+
+  useEffect(() => {
+    if (latestSchema) {
+      const t = setTimeout(() => setShowMatchCards(true), 800)
+      return () => clearTimeout(t)
     }
-    return null
-  }, [messages])
+    queueMicrotask(() => setShowMatchCards(false))
+  }, [latestSchema])
+
+  const displayMatches = showAllPractitioners ? clientSideMatches : clientSideMatches.slice(0, 3)
 
   return (
     <section className="match-page">
       <div className="match-hero">
-        <h1>Describe your concern</h1>
-        <p>Share symptoms, timing, location and care preferences. CMatch will understand and match you with the right practitioner.</p>
+        <h1>Match with a Chinese Medicine Practitioner.</h1>
       </div>
-
       <div className="match-layout">
-        <ChatPanel messages={messages} input={input} status={status} onInputChange={onInputChange} onSend={onSend} />
+        <TitleCard
+          title="Agentic matching"
+          action={
+            onReset && messages.length > 0 ? (
+              <button className="reset-btn" onClick={onReset} type="button">
+                Reset
+              </button>
+            ) : undefined
+          }
+        >
+          <ChatPanel
+            messages={messages}
+            input={input}
+            status={status}
+            onInputChange={onInputChange}
+            onSend={onSend}
+            suggestions={
+              <div className="quick-picks">
+                <button className="quick-pick-btn" onClick={() => onInputChange('Lower back pain for 3 weeks, worse after sitting, near Wan Chai. Prefer Cantonese, open to acupuncture but not herbs.')}>Lower back pain</button>
+                <span className="quick-pick-sep">·</span>
+                <button className="quick-pick-btn" onClick={() => onInputChange('I twisted my ankle two days ago. Walking hurts and it is swollen. I prefer a clinic near Mong Kok.')}>Ankle sprain</button>
+                <span className="quick-pick-sep">·</span>
+                <button className="quick-pick-btn" onClick={() => onInputChange('Bloating after meals, low energy, and poor sleep for more than two months. I work near Ho Man Tin.')}>Digestion & sleep</button>
+              </div>
+            }
+          />
+        </TitleCard>
 
         {error && <div className="match-error"><p>{error}</p></div>}
 
-        {latestSchema && <UnderstandingPanel schema={latestSchema} />}
+        {panelSchema && <UnderstandingPanel schema={panelSchema} previousSchema={panelPrevSchema} isFirstAppearance={isFirstAppearance} />}
 
-        {latestMatches && latestMatches.length > 0 && <MatchesPanel matches={latestMatches} />}
+        {latestSchema && (
+          <RecommendedPractitionersPanel
+            matches={showMatchCards ? displayMatches : []}
+            isFirstAppearance={showMatchCards}
+            showAll={showAllPractitioners}
+            onToggleShowAll={() => setShowAllPractitioners((v) => !v)}
+          />
+        )}
+      </div>
+    </section>
+  )
+}
+
+function HomePage({ onStart }: { onStart: () => void }) {
+  return (
+    <section className="home-page">
+      <div className="home-hero">
+        <span className="home-label">CMatch</span>
+        <h1>Find the right Chinese medicine practitioner in our trusted network.</h1>
+        <p>Share your symptoms, timing, location and care preferences. CMatch will understand and match you with the right practitioner.</p>
+        <button className="home-cta" type="button" onClick={onStart}>Find your practitioner</button>
       </div>
     </section>
   )
@@ -573,34 +1001,18 @@ function AboutPage() {
   )
 }
 
-function DebugPage({ messages }: { messages: ChatMessage[] }) {
-  const latestSchema = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) { const msg = messages[i]; if (msg.role === 'ai' && msg.schema) return msg.schema }
-    return null
-  }, [messages])
-  const latestMatches = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) { const msg = messages[i]; if (msg.role === 'ai' && msg.matches) return msg.matches }
-    return null
-  }, [messages])
-
-  return (
-    <section className="debug-page">
-      <h1>Debug</h1>
-      <details open><summary>Conversation ({messages.length})</summary><pre>{JSON.stringify(messages, null, 2)}</pre></details>
-      {latestSchema && <details open><summary>Schema</summary><pre>{JSON.stringify(latestSchema, null, 2)}</pre></details>}
-      {latestMatches && <details open><summary>Matches</summary><pre>{JSON.stringify(latestMatches, null, 2)}</pre></details>}
-    </section>
-  )
-}
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function pathForPage(page: AppPage) { return page === 'match' ? '/' : `/${page}` }
+function pathForPage(page: AppPage) {
+  if (page === 'home') return '/'
+  return `/${page}`
+}
 function pageFromPath(path: string): AppPage {
+  if (path === '/') return 'home'
   if (path === '/about') return 'about'
-  if (path === '/debug') return 'debug'
+  if (import.meta.env.DEV && path === '/debug') return 'debug'
   return 'match'
 }
 
@@ -611,11 +1023,18 @@ export default function App() {
   const [input, setInput] = useState('')
   const [status, setStatus] = useState<AnalysisStatus>('idle')
   const [error, setError] = useState('')
+  const streamIntervalRef = useRef<number | null>(null)
 
   useEffect(() => {
     const onPopState = () => setPage(pageFromPath(window.location.pathname))
     window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
+    return () => {
+      window.removeEventListener('popstate', onPopState)
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current)
+        streamIntervalRef.current = null
+      }
+    }
   }, [])
 
   function navigate(target: AppPage) {
@@ -625,9 +1044,26 @@ export default function App() {
     setMenuOpen(false)
   }
 
+  function stopStreaming() {
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current)
+      streamIntervalRef.current = null
+    }
+  }
+
+  function resetConversation() {
+    stopStreaming()
+    setMessages([])
+    setInput('')
+    setStatus('idle')
+    setError('')
+  }
+
   async function sendMessage() {
     const text = input.trim()
-    if (text.length === 0 || status === 'thinking') return
+    if (text.length === 0 || status === 'thinking' || streamIntervalRef.current) return
+
+    stopStreaming()
 
     const userMsg: ChatMessage = { role: 'user', text }
     const nextMessages = [...messages, userMsg]
@@ -636,27 +1072,84 @@ export default function App() {
     setStatus('thinking')
     setError('')
 
+    // Find the most recent schema to send as state to the AI
+    let currentSchema: CanonicalIntake | undefined
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i]
+      if (msg.role === 'ai' && msg.schema) {
+        currentSchema = msg.schema
+        break
+      }
+    }
+
     try {
-      const response = await fetch('/api/deepseek/conversation', {
+      const response = await fetch('/api/conversation', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
+          currentSchema,
         }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.message || data.error || 'AI service error')
-
-      const aiMsg: ChatMessage = {
-        role: 'ai',
-        text: data.text ?? 'I understood your concern.',
-        schema: data.schema ?? undefined,
-        status: data.status,
-        matches: data.matches ?? undefined,
+      if (!response.ok) {
+        const parts = [data.message, data.providerMessage, data.providerCode ? `(${data.providerCode})` : null].filter(Boolean)
+        throw new Error(parts.join(' ') || data.error || 'AI service error')
       }
-      setMessages((prev) => [...prev, aiMsg])
-      setStatus('ready')
+
+      const fullText = data.text ?? 'I understood your concern.'
+
+      // Show AI bubble immediately with first char — avoids empty-state race
+      // and the 'first letter cut off' glitch
+      flushSync(() => {
+        setMessages((prev) => [
+          ...prev,
+          { role: 'ai', text: fullText.charAt(0) || '' },
+        ])
+        setStatus('streaming')
+      })
+
+      // Stream by character slices — no word-splitting, no space-collapse
+      let charIndex = 1
+      streamIntervalRef.current = window.setInterval(() => {
+        if (charIndex >= fullText.length) {
+          stopStreaming()
+          flushSync(() => {
+            setMessages((prev) => {
+              const msgs = [...prev]
+              const lastIdx = msgs.length - 1
+              if (msgs[lastIdx].role === 'ai') {
+                msgs[lastIdx] = {
+                  role: 'ai',
+                  text: fullText,
+                  schema: data.schema ?? undefined,
+                  status: data.status,
+                  matches: data.matches ?? undefined,
+                }
+              }
+              return msgs
+            })
+            setStatus('ready')
+          })
+          return
+        }
+
+        // Stream 2 chars per tick (~60 chars/sec) — smooth but not sluggish
+        const nextIndex = Math.min(charIndex + 2, fullText.length)
+        flushSync(() => {
+          setMessages((prev) => {
+            const msgs = [...prev]
+            const lastIdx = msgs.length - 1
+            if (msgs[lastIdx].role === 'ai') {
+              msgs[lastIdx] = { ...msgs[lastIdx], text: fullText.slice(0, nextIndex) }
+            }
+            return msgs
+          })
+        })
+        charIndex = nextIndex
+      }, 22) as unknown as number
     } catch (err) {
+      stopStreaming()
       setError(err instanceof Error ? err.message : 'Something went wrong.')
       setStatus('error')
     }
@@ -664,9 +1157,14 @@ export default function App() {
 
   return (
     <AppShell menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((o) => !o)} currentPage={page} onNavigate={navigate}>
-      {page === 'match' && <MatchingPage messages={messages} input={input} status={status} error={error} onInputChange={setInput} onSend={sendMessage} />}
+      {page === 'home' && <HomePage onStart={() => navigate('match')} />}
+      {page === 'match' && <MatchingPage messages={messages} input={input} status={status} error={error} onInputChange={setInput} onSend={sendMessage} onReset={resetConversation} />}
       {page === 'about' && <AboutPage />}
-      {page === 'debug' && <DebugPage messages={messages} />}
+      {import.meta.env.DEV && page === 'debug' && (
+        <Suspense fallback={<div>Loading debug…</div>}>
+          <LazyDebugPage messages={messages} />
+        </Suspense>
+      )}
     </AppShell>
   )
 }
