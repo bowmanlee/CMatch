@@ -9,6 +9,7 @@ import {
   sendJson,
   readJsonBody,
   conversationWithDeepSeek,
+  checkSitePassword,
 } from './core.mjs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -70,6 +71,11 @@ const server = createServer(async (request, response) => {
 
   const isConversation = request.method === 'POST' && (url.pathname === '/api/conversation' || url.pathname === '/api/deepseek/conversation')
   if (isConversation) {
+    const pwdCheck = checkSitePassword(request)
+    if (!pwdCheck.ok) {
+      sendJson(response, 403, { error: pwdCheck.error, message: pwdCheck.message })
+      return
+    }
     try {
       const payload = await readJsonBody(request)
       const result = await conversationWithDeepSeek(payload)
@@ -80,6 +86,16 @@ const server = createServer(async (request, response) => {
         message: 'The request could not be processed.',
       })
     }
+    return
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/verify-password') {
+    const pwdCheck = checkSitePassword(request)
+    if (!pwdCheck.ok) {
+      sendJson(response, 403, { error: pwdCheck.error, message: pwdCheck.message })
+      return
+    }
+    sendJson(response, 200, { ok: true })
     return
   }
 

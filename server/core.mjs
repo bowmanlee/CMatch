@@ -12,6 +12,39 @@ export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL ?? 'deepseek-chat'
 export const MAX_BODY_BYTES = 32_768
 export const REQUEST_TIMEOUT_MS = 30_000
 
+const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY ?? ''
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TURNSTILE VERIFICATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export async function verifyTurnstile(token) {
+  if (!TURNSTILE_SECRET_KEY) {
+    // If no secret key is configured, skip verification (local dev)
+    return { success: true }
+  }
+  if (!token || typeof token !== 'string') {
+    return { success: false, error: 'missing_turnstile_token' }
+  }
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        secret: TURNSTILE_SECRET_KEY,
+        response: token,
+      }),
+    })
+    const data = await response.json()
+    if (!data.success) {
+      return { success: false, error: data['error-codes']?.join(', ') || 'turnstile_failed' }
+    }
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: 'turnstile_verify_error' }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECURITY HEADERS & CORS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -45,6 +78,22 @@ export function sendJson(response, statusCode, payload) {
   setSecurityHeaders(response)
   response.writeHead(statusCode, { 'content-type': 'application/json; charset=utf-8' })
   response.end(JSON.stringify(payload))
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SITE PASSWORD CHECK
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export function checkSitePassword(request) {
+  const sitePassword = process.env.CMATCH_SITE_PASSWORD || ''
+  if (!sitePassword) {
+    return { ok: true }
+  }
+  const provided = request.headers['x-site-password'] || ''
+  if (provided === sitePassword) {
+    return { ok: true }
+  }
+  return { ok: false, error: 'invalid_password', message: 'Invalid password.' }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

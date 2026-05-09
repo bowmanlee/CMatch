@@ -6,6 +6,8 @@ import {
   sendJson,
   readJsonBody,
   conversationWithDeepSeek,
+  verifyTurnstile,
+  checkSitePassword,
 } from '../server/core.mjs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -20,6 +22,7 @@ const MessageSchema = z.object({
 const ConversationPayloadSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(50),
   currentSchema: z.record(z.any()).optional(),
+  turnstileToken: z.string().min(1).optional(),
 })
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -54,6 +57,12 @@ export default async function handler(request, response) {
     return
   }
 
+  const pwdCheck = checkSitePassword(request)
+  if (!pwdCheck.ok) {
+    sendJson(response, 403, { error: pwdCheck.error, message: pwdCheck.message })
+    return
+  }
+
   try {
     const payload = await readJsonBody(request)
     const parseResult = ConversationPayloadSchema.safeParse(payload)
@@ -61,6 +70,12 @@ export default async function handler(request, response) {
     if (!parseResult.success) {
       const issues = parseResult.error.issues.map(i => i.message).join('; ')
       sendJson(response, 400, { error: 'invalid_request', message: issues })
+      return
+    }
+
+    const turnstile = await verifyTurnstile(parseResult.data.turnstileToken)
+    if (!turnstile.success) {
+      sendJson(response, 403, { error: 'turnstile_failed', message: turnstile.error })
       return
     }
 

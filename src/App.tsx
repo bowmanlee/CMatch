@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import './App.css'
+import PasswordGate from './PasswordGate'
 import type { Language, HKDistrict, ComplaintDomain, BodyRegion, TreatmentModality, SafetyRoute, AgeBand, Practitioner, Specialty } from '../shared/practitioners.ts'
 import { DOMAIN_TO_SPECIALTIES } from '../shared/practitioners.ts'
 import practitionersData from '../shared/practitioners.json'
 
-const LazyDebugPage = import.meta.env.DEV
-  ? lazy(() => import('./DebugPage'))
-  : () => null
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -55,7 +53,7 @@ export type ChatMessage =
   | { role: 'user'; text: string }
   | { role: 'ai'; text: string; schema?: CanonicalIntake; status?: string; matches?: AiMatch[] }
 
-type AppPage = 'home' | 'match' | 'about' | 'debug'
+type AppPage = 'home' | 'match' | 'about'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LABELS
@@ -351,9 +349,6 @@ function AppShell({
           <button className={`drawer-link ${isActive('home') ? 'active' : ''}`} onClick={() => { onNavigate('home'); onMenuToggle() }}>Home</button>
           <button className={`drawer-link ${isActive('match') ? 'active' : ''}`} onClick={() => { onNavigate('match'); onMenuToggle() }}>Match</button>
           <button className={`drawer-link ${isActive('about') ? 'active' : ''}`} onClick={() => { onNavigate('about'); onMenuToggle() }}>About</button>
-          {import.meta.env.DEV && (
-            <button className={`drawer-link ${isActive('debug') ? 'active' : ''}`} onClick={() => { onNavigate('debug'); onMenuToggle() }}>Debug</button>
-          )}
         </nav>
       </aside>
 
@@ -1012,7 +1007,7 @@ function pathForPage(page: AppPage) {
 function pageFromPath(path: string): AppPage {
   if (path === '/') return 'home'
   if (path === '/about') return 'about'
-  if (import.meta.env.DEV && path === '/debug') return 'debug'
+
   return 'match'
 }
 
@@ -1083,9 +1078,13 @@ export default function App() {
     }
 
     try {
+      const sitePassword = sessionStorage.getItem('cmatch-pwd') || ''
       const response = await fetch('/api/conversation', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          'x-site-password': sitePassword,
+        },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
           currentSchema,
@@ -1156,15 +1155,12 @@ export default function App() {
   }
 
   return (
-    <AppShell menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((o) => !o)} currentPage={page} onNavigate={navigate}>
-      {page === 'home' && <HomePage onStart={() => navigate('match')} />}
-      {page === 'match' && <MatchingPage messages={messages} input={input} status={status} error={error} onInputChange={setInput} onSend={sendMessage} onReset={resetConversation} />}
-      {page === 'about' && <AboutPage />}
-      {import.meta.env.DEV && page === 'debug' && (
-        <Suspense fallback={<div>Loading debug…</div>}>
-          <LazyDebugPage messages={messages} />
-        </Suspense>
-      )}
-    </AppShell>
+    <PasswordGate>
+      <AppShell menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((o) => !o)} currentPage={page} onNavigate={navigate}>
+        {page === 'home' && <HomePage onStart={() => navigate('match')} />}
+        {page === 'match' && <MatchingPage messages={messages} input={input} status={status} error={error} onInputChange={setInput} onSend={sendMessage} onReset={resetConversation} />}
+        {page === 'about' && <AboutPage />}
+      </AppShell>
+    </PasswordGate>
   )
 }
