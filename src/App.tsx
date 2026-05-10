@@ -253,8 +253,7 @@ function AppShell({
           <button className={`drawer-link ${isActive('home') ? 'active' : ''}`} onClick={() => { onNavigate('home'); onMenuToggle() }}>Home</button>
           <button className={`drawer-link ${isActive('match') ? 'active' : ''}`} onClick={() => { onNavigate('match'); onMenuToggle() }}>Match</button>
           <button className={`drawer-link ${isActive('about') ? 'active' : ''}`} onClick={() => { onNavigate('about'); onMenuToggle() }}>About</button>
-          <div className="drawer-divider" />
-          <button className={`drawer-link ${isActive('practitioner-signup') ? 'active' : ''}`} onClick={() => { onNavigate('practitioner-signup'); onMenuToggle() }}>Join as Practitioner</button>
+          <button className={`drawer-link drawer-link-bottom ${isActive('practitioner-signup') ? 'active' : ''}`} onClick={() => { onNavigate('practitioner-signup'); onMenuToggle() }}>Join as Practitioner</button>
         </nav>
       </aside>
 

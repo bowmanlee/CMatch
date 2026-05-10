@@ -211,7 +211,7 @@
 
 .drawer-head button:hover { color: var(--cm-green-900); background: var(--cm-green-50); }
 
-.drawer-nav { display: flex; flex-direction: column; gap: 4px; }
+.drawer-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 
 .drawer-link {
   padding: 10px 14px;
@@ -230,11 +230,7 @@
 .drawer-link:hover { color: var(--cm-green-900); background: transparent; }
 .drawer-link.active { color: var(--cm-green-900); background: var(--cm-green-50); }
 
-.drawer-divider {
-  height: 1px;
-  background: var(--cm-border);
-  margin: 4px 14px;
-}
+.drawer-link-bottom { margin-top: auto; }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    APP SHELL
