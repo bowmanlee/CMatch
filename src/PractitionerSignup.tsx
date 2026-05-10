@@ -67,6 +67,26 @@ const ageBandOptions: { value: AgeBand; label: string }[] = [
   { value: 'child_2_12', label: 'Child (2–12)' },
 ]
 
+const areaOptions = [
+  'Aberdeen', 'Causeway Bay', 'Central', 'Cheung Sha Wan', 'Diamond Hill',
+  'Discovery Bay', 'Fanling', 'Fo Tan', 'Happy Valley', 'Ho Man Tin',
+  'Jordan', 'Kwai Chung', 'Kwun Tong', 'Lok Fu', 'North Point',
+  'Quarry Bay', 'Repulse Bay', 'Sai Kung', 'Sai Wan Ho', 'Sai Ying Pun',
+  'Sha Tin', 'Sham Shui Po', 'Sham Tseng', 'Siu Hong', 'Tai Po',
+  'Taikoo Shing', 'To Kwa Wan', 'Tseung Kwan O', 'Tsing Yi', 'Tsuen Wan',
+  'Tuen Mun', 'Wong Chuk Hang', 'Wong Tai Sin', 'Yau Ma Tei', 'Yuen Long',
+].map((a) => ({ value: a, label: a }))
+
+const mtrOptions = [
+  'Central', 'Cheung Sha Wan', 'Diamond Hill', 'HKU', 'Hang Hau',
+  'Kowloon City', 'Kwun Tong', 'Lai King', 'Long Ping', 'Ma On Shan',
+  'Ocean Park', 'Quarry Bay', 'Sai Ying Pun', 'Sham Shui Po', 'Sheung Shui',
+  'Sheung Wan', 'Siu Hong', 'Sung Wong Toi', 'Sunny Bay', 'Tai Koo',
+  'Tai Po Market', 'Tai Wo Hau', 'To Kwa Wan', 'Tseung Kwan O', 'Tsim Sha Tsui',
+  'Tsing Yi', 'Tsuen Wan', 'Tuen Mun', 'Wan Chai', 'Wong Chuk Hang',
+  'Wong Tai Sin',
+].map((a) => ({ value: a, label: a }))
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM DROPDOWN COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -308,8 +328,8 @@ export default function PractitionerSignup() {
   const [phone, setPhone] = useState('')
   const [clinicName, setClinicName] = useState('')
   const [districts, setDistricts] = useState<HKDistrict[]>([])
-  const [areasText, setAreasText] = useState('')
-  const [mtrText, setMtrText] = useState('')
+  const [areas, setAreas] = useState<string[]>([])
+  const [mtrNearby, setMtrNearby] = useState<string[]>([])
   const [languages, setLanguages] = useState<Language[]>([])
   const [specialties, setSpecialties] = useState<Specialty[]>([])
   const [modalities, setModalities] = useState<TreatmentModality[]>([])
@@ -324,8 +344,7 @@ export default function PractitionerSignup() {
   const [priceRange, setPriceRange] = useState<'$' | '$$' | '$$$' | '$$$$'>('$$')
   const [bio, setBio] = useState('')
 
-  const areas = areasText.split(',').map((s) => s.trim()).filter(Boolean)
-  const mtrNearby = mtrText.split(',').map((s) => s.trim()).filter(Boolean)
+
 
   const validateStep = useCallback((s: number) => {
     if (s === 1) {
@@ -336,7 +355,7 @@ export default function PractitionerSignup() {
     if (s === 2) {
       if (!clinicName.trim()) return 'Please enter your clinic name.'
       if (districts.length === 0) return 'Please select at least one district.'
-      if (areas.length === 0) return 'Please enter at least one area.'
+      if (areas.length === 0) return 'Please select at least one area.'
     }
     if (s === 3) {
       if (specialties.length === 0) return 'Please select at least one specialty.'
@@ -483,18 +502,19 @@ export default function PractitionerSignup() {
                 onChange={setDistricts}
                 placeholder="Select districts…"
               />
-              <TextArea
+              <CustomMultiDropdown
                 label="Areas / neighbourhoods"
-                value={areasText}
-                onChange={setAreasText}
-                placeholder="Central, Sheung Wan (comma separated)"
-                required
+                values={areas}
+                options={areaOptions}
+                onChange={setAreas}
+                placeholder="Select areas…"
               />
-              <TextArea
+              <CustomMultiDropdown
                 label="Nearby MTR stations"
-                value={mtrText}
-                onChange={setMtrText}
-                placeholder="Central, Sheung Wan (comma separated)"
+                values={mtrNearby}
+                options={mtrOptions}
+                onChange={setMtrNearby}
+                placeholder="Select MTR stations…"
               />
             </Section>
             <Section title="Languages">
