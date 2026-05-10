@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { HKDistrict, Language, Specialty, TreatmentModality, AgeBand } from '../shared/practitioners.ts'
 
 const districtOptions: { value: HKDistrict; label: string }[] = [
@@ -67,6 +67,152 @@ const ageBandOptions: { value: AgeBand; label: string }[] = [
   { value: 'child_2_12', label: 'Child (2–12)' },
 ]
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CUSTOM DROPDOWN COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () => void) {
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (!ref.current || ref.current.contains(e.target as Node)) return
+      handler()
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') handler()
+    }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [ref, handler])
+}
+
+function DropdownChevron({ open }: { open: boolean }) {
+  return (
+    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style={{ transition: 'transform 200ms ease', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+      <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function CustomDropdown({ label, value, onChange, options, required, placeholder = 'Select…' }: {
+  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; required?: boolean; placeholder?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const selectedLabel = options.find((o) => o.value === value)?.label
+  useClickOutside(wrapperRef, () => setOpen(false))
+
+  return (
+    <div className="ps-field" ref={wrapperRef}>
+      <span className="ps-label">{label}{required && <span className="ps-required">*</span>}</span>
+      <button type="button" className={`ps-dropdown-trigger ${open ? 'open' : ''}`} onClick={() => setOpen((o) => !o)}>
+        <span className={selectedLabel ? 'ps-dropdown-value' : 'ps-dropdown-placeholder'}>{selectedLabel || placeholder}</span>
+        <DropdownChevron open={open} />
+      </button>
+      {open && (
+        <div className="ps-dropdown-panel">
+          {options.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              className={`ps-dropdown-item ${o.value === value ? 'selected' : ''}`}
+              onClick={() => { onChange(o.value); setOpen(false) }}
+            >
+              {o.value === value && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+              <span>{o.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CustomMultiDropdown<T extends string>({ label, values, onChange, options, required, placeholder = 'Select…' }: {
+  label: string; values: T[]; onChange: (v: T[]) => void; options: { value: T; label: string }[]; required?: boolean; placeholder?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  useClickOutside(wrapperRef, () => setOpen(false))
+
+  const filtered = query.trim()
+    ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
+    : options
+
+  const toggle = useCallback((val: T) => {
+    onChange(values.includes(val) ? values.filter((v) => v !== val) : [...values, val])
+  }, [values, onChange])
+
+  const displayText = values.length === 0
+    ? placeholder
+    : values.length === 1
+      ? options.find((o) => o.value === values[0])?.label
+      : `${values.length} selected`
+
+  return (
+    <div className="ps-field" ref={wrapperRef}>
+      <span className="ps-label">{label}{required && <span className="ps-required">*</span>}</span>
+      <button type="button" className={`ps-dropdown-trigger ${open ? 'open' : ''}`} onClick={() => setOpen((o) => !o)}>
+        <span className={values.length > 0 ? 'ps-dropdown-value' : 'ps-dropdown-placeholder'}>{displayText}</span>
+        <DropdownChevron open={open} />
+      </button>
+      {open && (
+        <div className="ps-dropdown-panel">
+          {options.length > 6 && (
+            <div className="ps-dropdown-search">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search…"
+                autoFocus
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+          <div className="ps-dropdown-list">
+            {filtered.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                className={`ps-dropdown-item ${values.includes(o.value) ? 'selected' : ''}`}
+                onClick={() => toggle(o.value)}
+              >
+                <span className="ps-dropdown-check">
+                  {values.includes(o.value) && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </span>
+                <span>{o.label}</span>
+              </button>
+            ))}
+            {filtered.length === 0 && <div className="ps-dropdown-empty">No results</div>}
+          </div>
+          {values.length > 0 && (
+            <div className="ps-dropdown-footer">
+              <button type="button" className="ps-dropdown-clear" onClick={() => onChange([])}>Clear all</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FORM FIELD HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="ps-fieldset">
@@ -112,21 +258,6 @@ function TextArea({ label, value, onChange, placeholder, required }: {
   )
 }
 
-function SelectField({ label, value, onChange, options, required }: {
-  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; required?: boolean
-}) {
-  return (
-    <label className="ps-field">
-      <span className="ps-label">{label}{required && <span className="ps-required">*</span>}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} required={required} className="ps-select">
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-    </label>
-  )
-}
-
 function CheckboxGroup<T extends string>({ label, values, options, onChange }: {
   label: string; values: T[]; options: { value: T; label: string }[]; onChange: (v: T[]) => void
 }) {
@@ -158,6 +289,10 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
     </label>
   )
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN FORM
+// ═══════════════════════════════════════════════════════════════════════════════
 
 export default function PractitionerSignup() {
   const [step, setStep] = useState(1)
@@ -322,7 +457,7 @@ export default function PractitionerSignup() {
             <Section title="Personal Information">
               <TextInput label="Full name" value={fullName} onChange={setFullName} placeholder="Dr. Chan Tai Man" required />
               <TextInput label="Professional title" value={title} onChange={setTitle} placeholder="Registered Chinese Medicine Practitioner" required />
-              <SelectField
+              <CustomDropdown
                 label="Gender"
                 value={gender}
                 onChange={(v) => setGender(v as 'female' | 'male')}
@@ -341,11 +476,12 @@ export default function PractitionerSignup() {
           <div className="ps-step-body">
             <Section title="Clinic Information">
               <TextInput label="Clinic name" value={clinicName} onChange={setClinicName} placeholder="Harmony TCM Clinic" required />
-              <CheckboxGroup
+              <CustomMultiDropdown
                 label="Districts served"
                 values={districts}
                 options={districtOptions}
                 onChange={setDistricts}
+                placeholder="Select districts…"
               />
               <TextArea
                 label="Areas / neighbourhoods"
@@ -375,17 +511,19 @@ export default function PractitionerSignup() {
         {step === 3 && (
           <div className="ps-step-body">
             <Section title="Specialties & Modalities">
-              <CheckboxGroup
+              <CustomMultiDropdown
                 label="Specialties"
                 values={specialties}
                 options={specialtyOptions}
                 onChange={setSpecialties}
+                placeholder="Select specialties…"
               />
-              <CheckboxGroup
+              <CustomMultiDropdown
                 label="Treatment modalities offered"
                 values={modalities}
                 options={modalityOptions}
                 onChange={setModalities}
+                placeholder="Select modalities…"
               />
             </Section>
             <Section title="Patient Acceptance">
@@ -406,7 +544,7 @@ export default function PractitionerSignup() {
         {step === 4 && (
           <div className="ps-step-body">
             <Section title="Availability">
-              <SelectField
+              <CustomDropdown
                 label="Next available appointment"
                 value={nextAvailable}
                 onChange={setNextAvailable}
@@ -426,7 +564,7 @@ export default function PractitionerSignup() {
             </Section>
             <Section title="Experience & Pricing">
               <TextInput label="Years of experience" value={experience} onChange={setExperience} placeholder="10" type="number" required />
-              <SelectField
+              <CustomDropdown
                 label="Price range"
                 value={priceRange}
                 onChange={(v) => setPriceRange(v as '$' | '$$' | '$$$' | '$$$$')}
