@@ -420,7 +420,7 @@ ${JSON.stringify(toolResults, null, 2)}
 ## Instructions
 Generate a brief, warm, direct 1–2 sentence response to the user.
 - Acknowledge what they said.
-- If matches are ready and strong, say you'll show them.
+- If matches are ready and strong, say you're showing them.
 - If there are gaps (e.g., no practitioners in their district), mention it and ask one follow-up.
 - Match the user's language.
 
@@ -784,9 +784,7 @@ export async function agentConversation(payload) {
         state.phase = 'done'
       } else if (action.type === 'tool_call' && toolResults.preview_matches) {
         matches = toolResults.preview_matches.matches
-        if (toolResults.preview_matches.topScore >= 0.7) {
-          status = 'ready_to_match'
-        }
+        status = 'showing_matches'
       }
 
       return {
@@ -870,9 +868,7 @@ export async function agentConversation(payload) {
       state.phase = 'done'
     } else if (action.type === 'tool_call' && toolResults.preview_matches) {
       matches = toolResults.preview_matches.matches
-      if (state.phase === 'done' || (toolResults.preview_matches.topScore >= 0.7 && state.turnCount >= 2)) {
-        status = 'ready_to_match'
-      }
+      status = 'showing_matches'
     }
 
     return {

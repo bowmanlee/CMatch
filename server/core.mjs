@@ -441,8 +441,8 @@ Fields: preferences.districtsPreferred, preferences.languagesPreferred, preferen
 
 ## Status Rules
 - "needs_clarification" — while asking questions in categories 1–3, or refining in category 4.
-- "ready_to_match" — when summarizing and offering to show matches in category 4.
-- "showing_matches" — ONLY when the user explicitly confirms they want to see practitioners.
+- "ready_to_match" — when summarizing and offering to show matches in category 4 (matches NOT yet displayed).
+- "showing_matches" — when matches are actively being displayed to the user.
 
 ${buildSchemaReference()}
 
