@@ -148,9 +148,11 @@ export const SCHEMA_META = {
     description: 'How long the complaint has been present.',
   },
   'complaint.severity': {
-    type: 'string',
-    enum: ['mild', 'moderate', 'severe', 'unknown'],
-    description: 'Pain or discomfort severity.',
+    type: 'number',
+    min: 1,
+    max: 10,
+    fallback: 'unknown',
+    description: 'Pain or symptom severity on a scale of 1 to 10, where 1 is barely noticeable and 10 is the worst possible.',
   },
   'complaint.functionalImpact': {
     type: 'string[]',
@@ -291,6 +293,16 @@ export function normalizeField(path, value) {
     return meta.fallback ?? null
   }
 
+  if (meta.type === 'number') {
+    const num = Number(value)
+    if (!Number.isNaN(num)) {
+      const min = meta.min ?? -Infinity
+      const max = meta.max ?? Infinity
+      if (num >= min && num <= max) return num
+    }
+    return meta.fallback ?? 'unknown'
+  }
+
   if (meta.type === 'boolean') {
     return Boolean(value)
   }
@@ -365,7 +377,7 @@ Extract a complete schema from the user's initial message.
     "schemaVersion": "cmatch.intake.v1",
     "source": { "rawText": "...", "language": "en | zh-HK | zh-CN | mixed | unknown" },
     "patientContext": { "ageBand": "...", "pregnancyStatus": "..." },
-    "complaint": { "domains": ["..."], "bodyRegions": ["..."], "symptomQualities": ["..."], "duration": "...", "severity": "...", "functionalImpact": ["..."] },
+    "complaint": { "domains": ["..."], "bodyRegions": ["..."], "symptomQualities": ["..."], "duration": "...", "severity": 5, "functionalImpact": ["..."] },
     "safety": { "route": "...", "redFlags": ["..."] },
     "preferences": { "districtsPreferred": ["..."], "languagesPreferred": ["..."], "treatmentPreferences": ["..."], "treatmentAvoidances": ["..."] },
     "extractionMeta": { "missingImportantFields": ["..."], "needsHumanReview": false }

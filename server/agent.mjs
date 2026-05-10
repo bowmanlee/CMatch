@@ -247,9 +247,9 @@ function runSafetyTool(intake, latestMessage) {
     }
   }
 
-  if (route === 'ok_to_match' && intake.complaint?.severity === 'severe') {
+  if (route === 'ok_to_match' && typeof intake.complaint?.severity === 'number' && intake.complaint.severity >= 8) {
     route = 'human_review_before_matching'
-    redFlags.push('severe pain reported')
+    redFlags.push(`severe pain reported (${intake.complaint.severity}/10)`)
   }
 
   return { route, redFlags, requiresEscalation: route !== 'ok_to_match' }
@@ -707,7 +707,7 @@ export async function agentConversation(payload) {
     state.turnCount === 0 &&
     (state.intake.complaint?.domains || []).length === 0 &&
     (state.intake.complaint?.bodyRegions || []).length === 0 &&
-    state.intake.complaint?.severity === 'unknown'
+    (typeof state.intake.complaint?.severity !== 'number' || state.intake.complaint?.severity === 'unknown')
 
   try {
     // ── FIRST TURN: reliable extraction + agent decision ──

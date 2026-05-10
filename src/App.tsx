@@ -26,7 +26,7 @@ type CanonicalIntake = {
     bodyRegions: BodyRegion[]
     symptomQualities: string[]
     duration: 'acute' | 'subacute' | 'chronic' | 'recurrent' | 'unknown'
-    severity: 'mild' | 'moderate' | 'severe' | 'unknown'
+    severity: number | 'unknown'
     functionalImpact: string[]
   }
   safety: { route: SafetyRoute; redFlags: string[] }
@@ -142,7 +142,7 @@ const durationLabels: Record<string, string> = {
 }
 
 const severityLabels: Record<string, string> = {
-  mild: 'Mild', moderate: 'Moderate', severe: 'Severe / sudden', unknown: 'Unknown',
+  unknown: 'Unknown',
 }
 
 const ageBandLabels: Record<AgeBand, string> = {
@@ -283,8 +283,11 @@ function getFieldValue(
       return schema.complaint.symptomQualities.map(formatQuality).join(', ') || null
     case 'Duration':
       return durationLabels[schema.complaint.duration] ?? 'Unknown'
-    case 'Severity':
-      return severityLabels[schema.complaint.severity] ?? 'Unknown'
+    case 'Severity': {
+      const s = schema.complaint.severity
+      if (typeof s === 'number') return `${s}/10`
+      return severityLabels[s] ?? 'Unknown'
+    }
     case 'Age':
       return ageBandLabels[schema.patientContext.ageBand] ?? 'Unknown'
     case 'Pregnancy':

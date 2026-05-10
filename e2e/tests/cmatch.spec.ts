@@ -19,7 +19,7 @@ const defaultSchema = {
     bodyRegions: ['ankle_foot'],
     symptomQualities: ['pain', 'swelling'],
     duration: 'acute',
-    severity: 'moderate',
+    severity: 5,
     functionalImpact: [],
   },
   safety: { route: 'ok_to_match', redFlags: [] },
