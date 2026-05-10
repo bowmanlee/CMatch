@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { flushSync } from 'react-dom'
 import './App.css'
 import PasswordGate from './PasswordGate'
+import PractitionerSignup from './PractitionerSignup'
+import AdminPractitioners from './AdminPractitioners'
 import type { Language, HKDistrict, ComplaintDomain, BodyRegion, TreatmentModality, SafetyRoute, AgeBand, Practitioner } from '../shared/practitioners.ts'
 import practitionersData from '../shared/practitioners.json'
 
@@ -72,7 +74,7 @@ export type ChatMessage =
   | { role: 'user'; text: string }
   | { role: 'ai'; text: string; schema?: CanonicalIntake; agentState?: AgentState; status?: string; matches?: AiMatch[] }
 
-type AppPage = 'home' | 'match' | 'about'
+type AppPage = 'home' | 'match' | 'about' | 'practitioner-signup' | 'admin-practitioners'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LABELS
@@ -251,6 +253,8 @@ function AppShell({
           <button className={`drawer-link ${isActive('home') ? 'active' : ''}`} onClick={() => { onNavigate('home'); onMenuToggle() }}>Home</button>
           <button className={`drawer-link ${isActive('match') ? 'active' : ''}`} onClick={() => { onNavigate('match'); onMenuToggle() }}>Match</button>
           <button className={`drawer-link ${isActive('about') ? 'active' : ''}`} onClick={() => { onNavigate('about'); onMenuToggle() }}>About</button>
+          <div className="drawer-divider" />
+          <button className={`drawer-link ${isActive('practitioner-signup') ? 'active' : ''}`} onClick={() => { onNavigate('practitioner-signup'); onMenuToggle() }}>Join as Practitioner</button>
         </nav>
       </aside>
 
@@ -918,11 +922,14 @@ function AboutPage() {
 
 function pathForPage(page: AppPage) {
   if (page === 'home') return '/'
+  if (page === 'admin-practitioners') return '/admin/practitioners'
   return `/${page}`
 }
 function pageFromPath(path: string): AppPage {
   if (path === '/') return 'home'
   if (path === '/about') return 'about'
+  if (path === '/practitioner-signup') return 'practitioner-signup'
+  if (path === '/admin/practitioners') return 'admin-practitioners'
 
   return 'match'
 }
@@ -1094,6 +1101,8 @@ export default function App() {
         {page === 'home' && <HomePage onStart={() => navigate('match')} />}
         {page === 'match' && <MatchingPage messages={messages} input={input} status={status} error={error} onInputChange={setInput} onSend={sendMessage} onReset={resetConversation} />}
         {page === 'about' && <AboutPage />}
+        {page === 'practitioner-signup' && <PractitionerSignup />}
+        {page === 'admin-practitioners' && <AdminPractitioners />}
       </AppShell>
     </PasswordGate>
   )

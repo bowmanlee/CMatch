@@ -11,6 +11,7 @@ import {
   checkSitePassword,
 } from './core.mjs'
 import { agentConversation } from './agent.mjs'
+import { addSubmissionSafe, getSubmissionsSafe } from './practitioner-storage.mjs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOAD .env / .env.local — for local development only
@@ -96,6 +97,60 @@ const server = createServer(async (request, response) => {
       return
     }
     sendJson(response, 200, { ok: true })
+    return
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/practitioner-signup') {
+    const pwdCheck = checkSitePassword(request)
+    if (!pwdCheck.ok) {
+      sendJson(response, 403, { error: pwdCheck.error, message: pwdCheck.message })
+      return
+    }
+    try {
+      const payload = await readJsonBody(request)
+      const required = ['fullName', 'email', 'phone', 'clinicName', 'districts', 'specialties', 'modalities', 'bio']
+      const missing = required.filter((key) => {
+        const val = payload[key]
+        if (Array.isArray(val)) return val.length === 0
+        return !val || (typeof val === 'string' && !val.trim())
+      })
+      if (missing.length > 0) {
+        sendJson(response, 400, { error: 'validation_failed', message: `Missing fields: ${missing.join(', ')}` })
+        return
+      }
+      const submission = addSubmissionSafe(payload)
+      sendJson(response, 201, { ok: true, id: submission.id })
+    } catch (error) {
+      sendJson(response, 500, { error: 'server_error', message: error instanceof Error ? error.message : 'Failed to save submission.' })
+    }
+    return
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/admin/practitioner-submissions') {
+    const adminPassword = process.env.CMATCH_ADMIN_PASSWORD || ''
+    let pwdCheck
+    if (!adminPassword) {
+      const sitePassword = process.env.CMATCH_SITE_PASSWORD || ''
+      if (!sitePassword) {
+        pwdCheck = { ok: true }
+      } else {
+        const provided = request.headers['x-admin-password'] || request.headers['x-site-password'] || ''
+        pwdCheck = provided === sitePassword ? { ok: true } : { ok: false, error: 'unauthorized', message: 'Invalid admin password.' }
+      }
+    } else {
+      const provided = request.headers['x-admin-password'] || ''
+      pwdCheck = provided === adminPassword ? { ok: true } : { ok: false, error: 'unauthorized', message: 'Invalid admin password.' }
+    }
+    if (!pwdCheck.ok) {
+      sendJson(response, 401, { error: pwdCheck.error, message: pwdCheck.message })
+      return
+    }
+    try {
+      const submissions = getSubmissionsSafe()
+      sendJson(response, 200, { submissions })
+    } catch (error) {
+      sendJson(response, 500, { error: 'server_error', message: error instanceof Error ? error.message : 'Failed to load submissions.' })
+    }
     return
   }
 
