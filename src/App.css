@@ -563,7 +563,7 @@
   width: 100%;
   display: block;
   border: 0;
-  border-radius: 0;
+  border-radius: 20px;
   background: transparent;
   padding: 0;
   color: var(--cm-ink);
