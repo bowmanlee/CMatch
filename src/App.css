@@ -227,7 +227,7 @@
   transition: color 160ms ease, background 160ms ease;
 }
 
-.drawer-link:hover { color: var(--cm-green-700); background: var(--cm-green-50); }
+.drawer-link:hover { color: var(--cm-green-900); background: transparent; }
 .drawer-link.active { color: var(--cm-green-900); background: var(--cm-green-50); }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
