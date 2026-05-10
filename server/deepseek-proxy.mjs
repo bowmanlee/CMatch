@@ -8,9 +8,9 @@ import {
   handleCors,
   sendJson,
   readJsonBody,
-  conversationWithDeepSeek,
   checkSitePassword,
 } from './core.mjs'
+import { agentConversation } from './agent.mjs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOAD .env / .env.local — for local development only
@@ -78,7 +78,7 @@ const server = createServer(async (request, response) => {
     }
     try {
       const payload = await readJsonBody(request)
-      const result = await conversationWithDeepSeek(payload)
+      const result = await agentConversation(payload)
       sendJson(response, result.statusCode, result.payload)
     } catch (error) {
       sendJson(response, 400, {

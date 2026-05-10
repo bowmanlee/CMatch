@@ -5,10 +5,10 @@ import {
   handleCors,
   sendJson,
   readJsonBody,
-  conversationWithDeepSeek,
   verifyTurnstile,
   checkSitePassword,
 } from '../server/core.mjs'
+import { agentConversation } from '../server/agent.mjs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // INPUT VALIDATION (Zod)
@@ -22,6 +22,7 @@ const MessageSchema = z.object({
 const ConversationPayloadSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(50),
   currentSchema: z.record(z.any()).optional(),
+  agentState: z.record(z.any()).optional(),
   turnstileToken: z.string().min(1).optional(),
 })
 
@@ -79,7 +80,7 @@ export default async function handler(request, response) {
       return
     }
 
-    const result = await conversationWithDeepSeek(parseResult.data)
+    const result = await agentConversation(parseResult.data)
     sendJson(response, result.statusCode, result.payload)
   } catch (error) {
     sendJson(response, 400, {

@@ -39,7 +39,7 @@
 }
 
 @keyframes gateCardIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -138,7 +138,7 @@
 }
 
 @keyframes dotAppear {
-  from { opacity: 0; transform: scale(0.5); }
+  from { opacity: 0; transform: scale(0.8); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -366,7 +366,7 @@
   width: calc(100% + 40px);
   min-width: 0;
   min-height: 140px;
-  max-height: 1260px;
+  max-height: 480px;
   margin: 0 -20px -20px;
   border-radius: 0 0 24px 24px;
   background: #fff;
@@ -386,6 +386,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: var(--cm-green-200) transparent;
 }
@@ -409,11 +410,12 @@
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  animation: msgIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: msgIn 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
 }
 
 @keyframes msgIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -429,6 +431,7 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
+  contain: layout;
 }
 
 .chat-msg.user .chat-msg-bubble {
@@ -444,15 +447,17 @@
 }
 
 .thinking-msg {
-  animation: msgIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: msgIn 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .thinking-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 0;
-  animation: msgIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cm-ink);
+  animation: msgIn 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .thinking-spinner {
@@ -466,7 +471,7 @@
 
 .thinking-spinner::before {
   content: '⠋';
-  animation: thinkingSpin 1.2s steps(10, end) infinite;
+  animation: thinkingSpin 1.6s steps(10, end) infinite;
 }
 
 @keyframes thinkingSpin {
@@ -484,22 +489,20 @@
 }
 
 .thinking-label {
-  font-size: 13px;
+  font-size: inherit;
   font-weight: 500;
-  color: var(--cm-ink-muted);
+  color: transparent;
+  background: linear-gradient(90deg, var(--cm-ink-muted) 0%, var(--cm-ink) 50%, var(--cm-ink-muted) 100%);
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3.5s ease-in-out infinite;
 }
 
-.thinking-label::after {
-  content: '';
-  animation: thinkingEllipsis 1.6s steps(4, end) infinite;
-}
-
-@keyframes thinkingEllipsis {
-  0%   { content: ''; }
-  25%  { content: '.'; }
-  50%  { content: '..'; }
-  75%  { content: '...'; }
-  100% { content: ''; }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .stream-cursor {
@@ -629,12 +632,13 @@
 /* Panel slides in only on first appearance */
 .title-card.animate-in,
 .understanding-panel.animate-in {
-  animation: panelSlideIn 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: panelSlideIn 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
 }
 
 @keyframes panelSlideIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .title-card-header,
@@ -648,7 +652,7 @@
 .title-card-header.animate-in,
 .panel-header.animate-in {
   opacity: 0;
-  animation: fadeInUp 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .title-card-header h2,
@@ -729,7 +733,7 @@
 
 .category-row.animate-in {
   opacity: 0;
-  animation: fadeInUp 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .category-title {
@@ -804,7 +808,7 @@
 /* Swipe in: gray → green, left to right */
 .schema-tag[data-phase="swipe-in"] .tag-bg,
 .schema-tag[data-phase="typing"] .tag-bg {
-  animation: swipeIn 120ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: swipeIn 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes swipeIn {
@@ -815,7 +819,7 @@
 /* Swipe out: green → gray, right to left */
 .schema-tag[data-phase="swipe-out"] .tag-bg,
 .schema-tag[data-phase="deleting"] .tag-bg {
-  animation: swipeOut 120ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: swipeOut 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes swipeOut {
@@ -847,7 +851,7 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -861,7 +865,7 @@
 
 .safety-banner.animate-in {
   opacity: 0;
-  animation: fadeInUp 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .safety-banner.emergency { background: #f8d7da; color: #721c24; }
@@ -886,11 +890,11 @@
 }
 
 .matches-grid.animate-in .match-card:nth-child(1) { animation-delay: 0ms; }
-.matches-grid.animate-in .match-card:nth-child(2) { animation-delay: 100ms; }
-.matches-grid.animate-in .match-card:nth-child(3) { animation-delay: 200ms; }
+.matches-grid.animate-in .match-card:nth-child(2) { animation-delay: 80ms; }
+.matches-grid.animate-in .match-card:nth-child(3) { animation-delay: 160ms; }
 
 @keyframes cardSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

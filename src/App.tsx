@@ -2,8 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { flushSync } from 'react-dom'
 import './App.css'
 import PasswordGate from './PasswordGate'
-import type { Language, HKDistrict, ComplaintDomain, BodyRegion, TreatmentModality, SafetyRoute, AgeBand, Practitioner, Specialty } from '../shared/practitioners.ts'
-import { DOMAIN_TO_SPECIALTIES } from '../shared/practitioners.ts'
+import type { Language, HKDistrict, ComplaintDomain, BodyRegion, TreatmentModality, SafetyRoute, AgeBand, Practitioner } from '../shared/practitioners.ts'
 import practitionersData from '../shared/practitioners.json'
 
 
@@ -49,9 +48,29 @@ type AiMatch = {
   cautions: string[]
 }
 
+type AgentMemory = {
+  questionsAsked: Array<{ field: string; text: string; turnIndex: number }>
+  extractionAttempts: Record<string, number>
+  userExplicitSkips: string[]
+}
+
+type AgentState = {
+  schemaVersion: 'cmatch.agent.v1'
+  phase: 'intaking' | 'matching' | 'escalated' | 'done'
+  intake: CanonicalIntake
+  memory: AgentMemory
+  plan: { objective: string; lastAction: string }
+  tools: {
+    safety?: { route: SafetyRoute; redFlags: string[]; requiresEscalation: boolean }
+    matchPreview?: { matches: AiMatch[]; topScore: number; gaps: string[] }
+  }
+  turnCount: number
+  maxTurns: number
+}
+
 export type ChatMessage =
   | { role: 'user'; text: string }
-  | { role: 'ai'; text: string; schema?: CanonicalIntake; status?: string; matches?: AiMatch[] }
+  | { role: 'ai'; text: string; schema?: CanonicalIntake; agentState?: AgentState; status?: string; matches?: AiMatch[] }
 
 type AppPage = 'home' | 'match' | 'about'
 
@@ -141,26 +160,6 @@ const safetyRouteLabels: Record<SafetyRoute, string> = {
   ok_to_match: 'No emergency signals detected',
 }
 
-const specialtyLabels: Record<Specialty, string> = {
-  internal_medicine: 'Internal Medicine (内科)',
-  surgery: 'Surgery (外科)',
-  obstetrics_gynecology: 'Obstetrics & Gynecology (妇产科)',
-  pediatrics: 'Pediatrics (儿科)',
-  dermatology: 'Dermatology (皮肤科)',
-  ophthalmology: 'Ophthalmology (眼科)',
-  otorhinolaryngology: 'Otorhinolaryngology (耳鼻咽喉科)',
-  stomatology: 'Stomatology (口腔科)',
-  oncology: 'Oncology (肿瘤科)',
-  orthopedics_traumatology: 'Orthopedics & Traumatology (骨伤科)',
-  proctology: 'Proctology (肛肠科)',
-  geriatrics: 'Geriatrics (老年病科)',
-  acupuncture: 'Acupuncture (针灸科)',
-  tuina: 'Tuina (推拿科)',
-  emergency_medicine: 'Emergency Medicine (急诊科)',
-  rehabilitation_medicine: 'Rehabilitation Medicine (康复医学)',
-  preventive_healthcare: 'Preventive Healthcare (预防保健科)',
-}
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRACTITIONER DATABASE
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -168,103 +167,6 @@ const specialtyLabels: Record<Specialty, string> = {
 const practitioners = practitionersData as Practitioner[]
 
 const practitionerMap = new Map(practitioners.map((p) => [p.id, p]))
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// CLIENT-SIDE PRACTITIONER SCORING
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function scorePractitioners(schema: CanonicalIntake, practitionersList: Practitioner[]): AiMatch[] {
-  const relevantSpecialties = new Set<Specialty>()
-  for (const domain of schema.complaint.domains) {
-    if (domain === 'unknown') continue
-    for (const specialty of DOMAIN_TO_SPECIALTIES[domain]) {
-      relevantSpecialties.add(specialty)
-    }
-  }
-
-  return practitionersList
-    .map((p) => {
-      let score = 0
-      const reasons: string[] = []
-      const cautions: string[] = []
-
-      // 1. Specialty match (0–50 points)
-      const specialtyOverlap = p.specialties.filter((s) => relevantSpecialties.has(s))
-      if (specialtyOverlap.length > 0) {
-        score += 30 + Math.min(20, specialtyOverlap.length * 10)
-        reasons.push(`Specialises in ${specialtyOverlap.map((s) => specialtyLabels[s]).join(', ')}`)
-      }
-
-      // 2. District match (0–20 points)
-      const districtOverlap = p.districts.filter(
-        (d) =>
-          schema.preferences.districtsPreferred.includes(d) ||
-          schema.preferences.districtsPreferred.includes('remote_or_no_preference'),
-      )
-      if (districtOverlap.length > 0 || schema.preferences.districtsPreferred.length === 0) {
-        score += 20
-        if (districtOverlap.length > 0) {
-          reasons.push(`Available in ${districtOverlap.map((d) => districtLabels[d]).join(', ')}`)
-        }
-      }
-
-      // 3. Language match (0–15 points)
-      const langOverlap = p.languages.filter(
-        (l) =>
-          schema.preferences.languagesPreferred.includes(l) ||
-          schema.preferences.languagesPreferred.includes('no_preference'),
-      )
-      if (langOverlap.length > 0 || schema.preferences.languagesPreferred.length === 0) {
-        score += 15
-        if (langOverlap.length > 0) {
-          reasons.push(`Speaks ${langOverlap.map((l) => languageLabels[l]).join(', ')}`)
-        }
-      }
-
-      // 4. Modality preference (0–10 points)
-      const modalityOverlap = p.modalities.filter((m) => schema.preferences.treatmentPreferences.includes(m))
-      if (modalityOverlap.length > 0) {
-        score += 10
-        reasons.push(`Offers ${modalityOverlap.map((m) => modalityLabels[m]).join(', ')}`)
-      }
-
-      // 5. Age band hard filter
-      if (
-        !p.accepts.ageBands.includes(schema.patientContext.ageBand) &&
-        schema.patientContext.ageBand !== 'unknown'
-      ) {
-        score = -1000
-        cautions.push(`Does not accept ${ageBandLabels[schema.patientContext.ageBand]} patients`)
-      }
-
-      // 7. Pregnancy hard filter
-      if (
-        (schema.patientContext.pregnancyStatus === 'pregnant' ||
-          schema.patientContext.pregnancyStatus === 'postpartum') &&
-        !p.accepts.pregnancyRelated
-      ) {
-        score = -1000
-        cautions.push('Does not accept pregnancy-related cases')
-      }
-
-      const normalizedScore = Math.max(0, Math.min(1, score / 100))
-
-      let band: AiMatch['band']
-      if (normalizedScore >= 0.75) band = 'Strong match'
-      else if (normalizedScore >= 0.5) band = 'Good match'
-      else band = 'Possible match'
-
-      return {
-        practitionerId: p.id,
-        score: normalizedScore,
-        band,
-        reasons,
-        cautions,
-      }
-    })
-    .filter((m) => m.score > 0)
-    .sort((a, b) => b.score - a.score)
-}
 
 // Visual-only schema shown immediately when user sends a message.
 // All fields are empty/unknown so tags render as gray placeholders.
@@ -392,6 +294,8 @@ function getFieldValue(
       return schema.preferences.treatmentPreferences.map((m) => modalityLabels[m]).join(', ') || 'No preference'
     case 'Avoidances':
       return schema.preferences.treatmentAvoidances.map((m) => modalityLabels[m]).join(', ') || 'None specified'
+    case 'Impact':
+      return schema.complaint.functionalImpact.map(formatQuality).join(', ') || null
     default:
       return null
   }
@@ -653,7 +557,7 @@ function UnderstandingPanel({
   previousSchema: CanonicalIntake | null
   isFirstAppearance: boolean
 }) {
-  const chiefComplaint = useMemo(() => [{ label: 'Issue' }, { label: 'Where' }, { label: 'Details' }, { label: 'Duration' }, { label: 'Severity' }], [])
+  const chiefComplaint = useMemo(() => [{ label: 'Issue' }, { label: 'Where' }, { label: 'Details' }, { label: 'Duration' }, { label: 'Severity' }, { label: 'Impact' }], [])
   const patientProfile = useMemo(() => [{ label: 'Age' }, { label: 'Pregnancy' }], [])
   const preferences = useMemo(() => [{ label: 'District' }, { label: 'Language' }, { label: 'Treatment preference' }, { label: 'Avoidances' }], [])
   return (
@@ -794,11 +698,16 @@ function ChatPanel({
   suggestions?: React.ReactNode
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const prevMessageCount = useRef(messages.length)
 
-  useLayoutEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [messages])
+  useEffect(() => {
+    if (messages.length !== prevMessageCount.current) {
+      prevMessageCount.current = messages.length
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+  }, [messages.length])
 
   useEffect(() => {
     const el = textareaRef.current
@@ -832,16 +741,15 @@ function ChatPanel({
               {msg.role === 'ai' && isStreaming && i === messages.length - 1 && (
                 <span className="stream-cursor" />
               )}
+              {msg.role === 'ai' && msg.text === '' && status === 'thinking' && (
+                <div className="thinking-indicator">
+                  <span className="thinking-label">Thinking</span>
+                </div>
+              )}
             </div>
           </div>
         ))}
-        {status === 'thinking' && (
-          <div className="chat-msg ai thinking-msg">
-            <div className="thinking-indicator">
-              <span className="thinking-label">Thinking</span>
-            </div>
-          </div>
-        )}
+        <div ref={bottomRef} />
       </div>
 
       <div className="chat-footer">
@@ -884,12 +792,15 @@ function MatchingPage({
     let prev: CanonicalIntake | null = null
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i]
-      if (msg.role === 'ai' && msg.schema) {
-        if (!latest) {
-          latest = msg.schema
-        } else if (!prev) {
-          prev = msg.schema
-          break
+      if (msg.role === 'ai') {
+        const schema = msg.agentState?.intake ?? msg.schema
+        if (schema) {
+          if (!latest) {
+            latest = schema
+          } else if (!prev) {
+            prev = schema
+            break
+          }
         }
       }
     }
@@ -904,11 +815,16 @@ function MatchingPage({
   const panelPrevSchema = latestSchema ? (previousSchema ?? initialPanelSchema) : null
   const isFirstAppearance = latestSchema !== null && previousSchema === null
 
-  // Client-side scoring: only match using REAL schema from AI responses
+  // Use server-provided matches from the latest AI response
   const clientSideMatches = useMemo(() => {
-    if (!latestSchema) return []
-    return scorePractitioners(latestSchema, practitioners)
-  }, [latestSchema])
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i]
+      if (msg.role === 'ai' && msg.matches && msg.matches.length > 0) {
+        return msg.matches
+      }
+    }
+    return []
+  }, [messages])
 
   const [showMatchCards, setShowMatchCards] = useState(false)
   const [showAllPractitioners, setShowAllPractitioners] = useState(false)
@@ -1061,18 +977,19 @@ export default function App() {
     stopStreaming()
 
     const userMsg: ChatMessage = { role: 'user', text }
-    const nextMessages = [...messages, userMsg]
+    const placeholderMsg: ChatMessage = { role: 'ai', text: '' }
+    const nextMessages = [...messages, userMsg, placeholderMsg]
     setMessages(nextMessages)
     setInput('')
     setStatus('thinking')
     setError('')
 
-    // Find the most recent schema to send as state to the AI
-    let currentSchema: CanonicalIntake | undefined
+    // Find the most recent agentState to send as state to the AI
+    let agentState: AgentState | undefined
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i]
-      if (msg.role === 'ai' && msg.schema) {
-        currentSchema = msg.schema
+      if (msg.role === 'ai' && msg.agentState) {
+        agentState = msg.agentState
         break
       }
     }
@@ -1086,8 +1003,10 @@ export default function App() {
           'x-site-password': sitePassword,
         },
         body: JSON.stringify({
-          messages: nextMessages.map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
-          currentSchema,
+          messages: nextMessages
+            .filter((m) => !(m.role === 'ai' && m.text === ''))
+            .map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
+          agentState,
         }),
       })
       const data = await response.json()
@@ -1101,10 +1020,16 @@ export default function App() {
       // Show AI bubble immediately with first char — avoids empty-state race
       // and the 'first letter cut off' glitch
       flushSync(() => {
-        setMessages((prev) => [
-          ...prev,
-          { role: 'ai', text: fullText.charAt(0) || '' },
-        ])
+        setMessages((prev) => {
+          const msgs = [...prev]
+          const lastIdx = msgs.length - 1
+          if (msgs[lastIdx].role === 'ai' && msgs[lastIdx].text === '') {
+            msgs[lastIdx] = { role: 'ai', text: fullText.charAt(0) || '' }
+          } else {
+            msgs.push({ role: 'ai', text: fullText.charAt(0) || '' })
+          }
+          return msgs
+        })
         setStatus('streaming')
       })
 
@@ -1122,6 +1047,7 @@ export default function App() {
                   role: 'ai',
                   text: fullText,
                   schema: data.schema ?? undefined,
+                  agentState: data.agentState ?? undefined,
                   status: data.status,
                   matches: data.matches ?? undefined,
                 }
@@ -1149,6 +1075,14 @@ export default function App() {
       }, 22) as unknown as number
     } catch (err) {
       stopStreaming()
+      setMessages((prev) => {
+        const msgs = [...prev]
+        const lastIdx = msgs.length - 1
+        if (msgs[lastIdx]?.role === 'ai' && msgs[lastIdx]?.text === '') {
+          msgs.pop()
+        }
+        return msgs
+      })
       setError(err instanceof Error ? err.message : 'Something went wrong.')
       setStatus('error')
     }
