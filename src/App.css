@@ -387,12 +387,7 @@
   flex-direction: column;
   gap: 12px;
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: var(--cm-green-200) transparent;
 }
-
-.chat-messages::-webkit-scrollbar { width: 4px; }
-.chat-messages::-webkit-scrollbar-thumb { background: var(--cm-green-200); border-radius: 50%; }
 
 .chat-empty {
   display: flex;
