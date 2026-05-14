@@ -734,9 +734,7 @@ function ChatPanel({
       <div className="chat-messages" ref={scrollRef}>
         {messages.length === 0 && (
           <>
-            <div className="chat-empty">
-              <p className="chat-empty-lead">Describe your symptoms, timing, location and care preferences.</p>
-            </div>
+            <div className="chat-empty" />
             {suggestions && <div className="chat-suggestions">{suggestions}</div>}
           </>
         )}
@@ -766,7 +764,7 @@ function ChatPanel({
               value={input}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your concern…"
+              placeholder="Describe your symptoms, timing, location and care preferences."
               disabled={isBusy}
               rows={1}
             />
